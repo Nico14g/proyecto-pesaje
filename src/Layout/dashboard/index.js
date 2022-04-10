@@ -5,10 +5,13 @@ import { Outlet } from "react-router-dom";
 import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 
 //
-
+import useStore from "../../store/store";
+import { useAuth } from "../../Auth/Auth";
 import CssBaseline from "@mui/material/CssBaseline";
 import DashboardNavbar from "./DashboardNavbar";
 import DashboardSidebar from "./DashboardSidebar";
+import LogoOnlyLayout from "../LogoOnlyLayout";
+import NotFound from "../../vistas/NotFound";
 
 // ----------------------------------------------------------------------
 
@@ -18,7 +21,8 @@ const APP_BAR_DESKTOP = 92;
 const MainStyle = styled("div")(({ theme }) => ({
   flexGrow: 1,
   overflow: "auto",
-  minHeight: "100%",
+  height: "100vh",
+
   paddingTop: APP_BAR_MOBILE + 24,
   paddingBottom: theme.spacing(10),
   [theme.breakpoints.up("lg")]: {
@@ -36,7 +40,10 @@ const RootStyle = styled("div")({
 // ----------------------------------------------------------------------
 
 export default function DashboardLayout() {
-  const [open, setOpen] = useState(false);
+  const open = useStore((state) => state.open);
+  const setOpen = useStore((state) => state.setOpen);
+  const { userData } = useAuth();
+
   const mdTheme = createTheme({
     palette: {
       type: "light",
@@ -48,20 +55,25 @@ export default function DashboardLayout() {
       },
     },
   });
+
+  if (userData === undefined || userData === null)
+    return (
+      <div>
+        <LogoOnlyLayout />
+        <NotFound />
+      </div>
+    );
+
   return (
     <RootStyle>
       <ThemeProvider theme={mdTheme}>
         <CssBaseline />
-        <DashboardNavbar open={open} setOpen={() => setOpen((open) => !open)} />
-        <DashboardSidebar
-          open={open}
-          setOpen={() => setOpen((open) => !open)}
-        />
+        <DashboardNavbar open={open} setOpen={setOpen} />
+        <DashboardSidebar open={open} setOpen={setOpen} />
 
         <MainStyle>
-          <Outlet />
+          <Outlet open={open} />
         </MainStyle>
-        {/* <Box sx={{ flexGrow: 1 }} /> */}
       </ThemeProvider>
     </RootStyle>
   );

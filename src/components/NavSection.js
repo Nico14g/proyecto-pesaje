@@ -15,8 +15,11 @@ import {
   ListItemIcon,
   ListItemButton,
 } from "@mui/material";
+
+import { getAdminRoutes, getCompanyRoutes } from "../routes";
 //
 import Iconify from "./Iconify";
+import useAuth from "../Auth/Auth";
 
 // ----------------------------------------------------------------------
 
@@ -121,7 +124,6 @@ function NavItem({ item, active, openSidebar }) {
                   }}
                 >
                   <ListItemIconStyle>
-                    {console.log(isActiveSub, "asdasd")}
                     <Box
                       component="span"
                       sx={{
@@ -188,8 +190,41 @@ NavSection.propTypes = {
 
 export default function NavSection({ navConfig, open }) {
   const { pathname } = useLocation();
+  const { userData } = useAuth();
+  const filteredNavConfig = filterNavConfig();
+
   const match = (path) =>
     path ? !!matchPath({ path, end: false }, pathname) : false;
+
+  function filterNavConfig() {
+    if (userData?.rol === "admin") return getAdminNavConfig();
+    if (userData?.rol === "company") return getCompanyNavConfig();
+  }
+
+  function removeAccents(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  // Revisa si las rutas a las que tiene acceso un usuario contienen cierta
+  // ruta
+  function routesContainPath(routes, path) {
+    let pathWithNoSpaces = path.replaceAll(" ", "-");
+    pathWithNoSpaces = removeAccents(pathWithNoSpaces);
+
+    return routes.find((r) => r.path === pathWithNoSpaces);
+  }
+
+  function getAdminNavConfig() {
+    return navConfig.filter((el) =>
+      routesContainPath(getAdminRoutes(), el.title)
+    );
+  }
+
+  function getCompanyNavConfig() {
+    return navConfig.filter((el) =>
+      routesContainPath(getCompanyRoutes(), el.title)
+    );
+  }
 
   return (
     <Box
@@ -201,9 +236,10 @@ export default function NavSection({ navConfig, open }) {
       }}
     >
       <List>
-        {navConfig.map((item) => (
-          <NavItem key={item.title} item={item} active={match} open={open} />
-        ))}
+        {filteredNavConfig &&
+          filteredNavConfig.map((item) => (
+            <NavItem key={item.title} item={item} active={match} open={open} />
+          ))}
       </List>
     </Box>
   );
