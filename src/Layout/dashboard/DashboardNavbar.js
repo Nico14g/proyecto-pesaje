@@ -8,11 +8,9 @@ import {
   IconButton,
   Typography,
   AppBar as MuiAppBar,
-  Badge,
   Box,
   Divider,
   Button,
-  Popover,
 } from "@mui/material";
 
 import MenuPopover from "./MenuPopover";
@@ -35,14 +33,6 @@ export default function DashboardNavbar({ open, setOpen }) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const divRef = useRef();
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  function handleClose() {
-    setAnchorEl(null);
-  }
 
   useEffect(() => {
     setAnchorEl(divRef.current);

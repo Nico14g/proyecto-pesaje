@@ -36,6 +36,7 @@ const RootStyle = styled("div")({
   display: "flex",
   minHeight: "100%",
   overflow: "hidden",
+  backgroundColor: "#F6F6F6",
 });
 // ----------------------------------------------------------------------
 

@@ -16,7 +16,7 @@ import { useAuth } from "./Auth/Auth";
 const getAdminRoutes = () => {
   return [
     { path: "/", element: <Navigate to="/dashboard/inicio" replace /> },
-    { path: "registro-temporeros", element: <Registro /> },
+    { path: "registro-usuarios", element: <Registro /> },
     { path: "reportes", element: <Dashboard /> },
     { path: "configuracion", element: <Dashboard /> },
   ];
@@ -24,7 +24,7 @@ const getAdminRoutes = () => {
 
 const getCompanyRoutes = () => {
   return [
-    { path: "registro-temporeros", element: <Registro /> },
+    { path: "registro-usuarios", element: <Registro /> },
     { path: "reportes", element: <Dashboard /> },
     { path: "configuracion", element: <Dashboard /> },
   ];
@@ -48,13 +48,13 @@ export default function Router() {
   const selectAppRoutesChildren = () => {
     const children = [
       { path: "404", element: <NotFound /> },
-      { path: "/", element: <Navigate to="/dashboard/registro-temporeros" /> },
+      { path: "/", element: <Navigate to="/dashboard/registro-usuarios" /> },
       { path: "*", element: <Navigate to="/404" /> },
     ];
     if (userData !== null && userData !== undefined) {
       children.unshift({
         path: "login",
-        element: <Navigate to="/dashboard/registro-temporeros" />,
+        element: <Navigate to="/dashboard/registro-usuarios" />,
       });
     } else {
       children.unshift({ path: "login", element: <Login /> });

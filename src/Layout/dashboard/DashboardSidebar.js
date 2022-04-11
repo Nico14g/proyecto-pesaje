@@ -64,7 +64,7 @@ export default function DashboardSidebar({ open, setOpen }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
-
+            backgroundColor: "#F6F6F6",
             px: [1],
           }}
         >

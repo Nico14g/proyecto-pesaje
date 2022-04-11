@@ -7,8 +7,8 @@ const getIcon = (name) => <Iconify icon={name} width={24} height={24} />;
 
 const sidebarConfig = [
   {
-    title: "registro temporeros",
-    path: "/dashboard/registro-temporeros",
+    title: "registro usuarios",
+    path: "/dashboard/registro-usuarios",
     icon: getIcon("akar-icons:person-add"),
   },
   {

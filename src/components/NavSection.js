@@ -233,6 +233,7 @@ export default function NavSection({ navConfig, open }) {
         flexGrow: 1,
         height: "89vh",
         overflow: "auto",
+        backgroundColor: "#F6F6F6",
       }}
     >
       <List>
