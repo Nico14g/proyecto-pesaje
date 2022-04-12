@@ -20,7 +20,7 @@ export default function SearchNotFound({
       </Typography>
       <Typography variant="body2" align="center">
         {searchFilter
-          ? "No se han hallado resultados para la busqueda o para la fecha seleccionada."
+          ? "No se han hallado resultados para su búsqueda"
           : "No se han hallado resultados."}
       </Typography>
     </Paper>

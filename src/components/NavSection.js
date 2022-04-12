@@ -16,7 +16,7 @@ import {
   ListItemButton,
 } from "@mui/material";
 
-import { getAdminRoutes, getCompanyRoutes } from "../routes";
+import { getAdminRoutes, getCompanyRoutes, getPlannerRoutes } from "../routes";
 //
 import Iconify from "./Iconify";
 import useAuth from "../Auth/Auth";
@@ -199,6 +199,7 @@ export default function NavSection({ navConfig, open }) {
   function filterNavConfig() {
     if (userData?.rol === "admin") return getAdminNavConfig();
     if (userData?.rol === "company") return getCompanyNavConfig();
+    if (userData?.rol === "planner") return getPlannerNavConfig();
   }
 
   function removeAccents(str) {
@@ -223,6 +224,12 @@ export default function NavSection({ navConfig, open }) {
   function getCompanyNavConfig() {
     return navConfig.filter((el) =>
       routesContainPath(getCompanyRoutes(), el.title)
+    );
+  }
+
+  function getPlannerNavConfig() {
+    return navConfig.filter((el) =>
+      routesContainPath(getPlannerRoutes(), el.title)
     );
   }
 

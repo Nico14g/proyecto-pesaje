@@ -7,7 +7,6 @@ import Dashboard from "./vistas/Dashboard";
 import Registro from "./vistas/Registro";
 import NotFound from "./vistas/NotFound";
 import Login from "./vistas/Login";
-import useStore from "./store/store";
 
 import { useAuth } from "./Auth/Auth";
 
@@ -15,10 +14,9 @@ import { useAuth } from "./Auth/Auth";
 
 const getAdminRoutes = () => {
   return [
-    { path: "/", element: <Navigate to="/dashboard/inicio" replace /> },
     { path: "registro-usuarios", element: <Registro /> },
     { path: "reportes", element: <Dashboard /> },
-    { path: "configuracion", element: <Dashboard /> },
+    { path: "categorias", element: <Dashboard /> },
   ];
 };
 
@@ -26,7 +24,15 @@ const getCompanyRoutes = () => {
   return [
     { path: "registro-usuarios", element: <Registro /> },
     { path: "reportes", element: <Dashboard /> },
-    { path: "configuracion", element: <Dashboard /> },
+    { path: "categorias", element: <Dashboard /> },
+  ];
+};
+
+const getPlannerRoutes = () => {
+  return [
+    { path: "registro-usuarios", element: <Dashboard /> },
+    { path: "reportes", element: <Dashboard /> },
+    { path: "categorias", element: <Dashboard /> },
   ];
 };
 const getNotLoggedInRoutes = () => {
@@ -42,6 +48,7 @@ export default function Router() {
     } else {
       if (userData.rol === "admin") return getAdminRoutes();
       if (userData.rol === "company") return getCompanyRoutes();
+      if (userData.rol === "planner") return getPlannerRoutes();
     }
   };
 
@@ -77,7 +84,7 @@ export default function Router() {
   ]);
 }
 
-export { getAdminRoutes, getCompanyRoutes };
+export { getAdminRoutes, getCompanyRoutes, getPlannerRoutes };
 // {
 //   path: '/',
 //   element: <LogoOnlyLayout />,

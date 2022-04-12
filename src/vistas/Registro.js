@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, Typography, Container } from "@mui/material";
 import Page from "../components/Page";
 import { makeStyles } from "@mui/styles";
@@ -31,17 +31,29 @@ export default function Registro() {
   const [usuarios, setUsuarios] = useState([]);
   const { userData } = useAuth();
   const classes = styles(open);
+  const isMounted = useRef(true);
 
   useEffect(() => {
-    const q = query(collection(db, "users"), where("cuid", "==", userData.uid));
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const cuid = userData.rol === "company" ? userData.uid : userData.cuid;
+    const q = query(collection(db, "users"), where("cuid", "==", cuid));
     onSnapshot(q, (querySnapshot) => {
       let usuarios = [];
       querySnapshot.forEach((doc) => {
-        usuarios.push(doc.data());
+        if (doc.data().run !== userData.run) {
+          usuarios.push(doc.data());
+        }
       });
-      setUsuarios(usuarios);
+      if (isMounted.current) {
+        setUsuarios(usuarios);
+      }
     });
-  }, [userData.uid]);
+  }, [userData.uid, userData.cuid, userData.rol, userData.run]);
 
   return (
     <div className={classes.div}>
@@ -49,10 +61,9 @@ export default function Registro() {
         <Container>
           <Card className={classes.root} variant="outlined">
             <Typography variant="h5" component="h2" className={classes.title}>
-              Registro
+              Lista de Usuarios
             </Typography>
             <TablaUsuarios usuarios={usuarios} />
-            {/* <FormularioEmpleado formik={formik} /> */}
           </Card>
         </Container>
       </Page>

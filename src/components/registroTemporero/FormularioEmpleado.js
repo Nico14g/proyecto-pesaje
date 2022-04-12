@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 import eyeFill from "@iconify/icons-eva/eye-fill";
+import eyeOffFill from "@iconify/icons-eva/eye-off-fill";
 import {
   CardContent,
   FormControl,
@@ -14,6 +15,9 @@ import {
   Select,
   Divider,
   Chip,
+  IconButton,
+  InputAdornment,
+  FormHelperText,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { Form } from "formik";
@@ -36,14 +40,22 @@ const styles = makeStyles((theme) => ({
 }));
 
 export default function FormularioEmpleado(props) {
-  const { formik } = props;
+  const { formik, visualizar } = props;
   const classes = styles();
-  const [rol, setRol] = useState("");
-  const { errors, touched, handleSubmit, getFieldProps } = formik;
-  const [fecha, setFecha] = useState(null);
 
-  const handleChange = (event) => {
-    setRol(event.target.value);
+  const {
+    errors,
+    touched,
+    handleSubmit,
+    getFieldProps,
+    values,
+    setFieldValue,
+  } = formik;
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleShowPassword = () => {
+    setShowPassword((show) => !show);
   };
   return (
     <div>
@@ -53,19 +65,26 @@ export default function FormularioEmpleado(props) {
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 <Grid container item xs={6}>
-                  <FormControl fullWidth>
+                  <FormControl fullWidth className={classes.pos}>
                     <InputLabel id="demo-simple-select-label">Rol</InputLabel>
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
-                      value={rol}
                       label="Rol"
-                      onChange={handleChange}
+                      required
+                      {...getFieldProps("rol")}
+                      disabled={visualizar}
+                      error={Boolean(touched.rol && errors.rol)}
                     >
                       <MenuItem value={"admin"}>Administrador</MenuItem>
-                      <MenuItem value={"cosechador"}>Cosechador</MenuItem>
+                      <MenuItem value={"harvester"}>Cosechador</MenuItem>
                       <MenuItem value={"planner"}>Planillero</MenuItem>
                     </Select>
+                    {Boolean(touched.rol && errors.rol) && (
+                      <FormHelperText style={{ color: "#d32f2f" }}>
+                        {touched.rol && errors.rol}
+                      </FormHelperText>
+                    )}
                   </FormControl>
                 </Grid>
                 <Grid container item xs={6}>
@@ -75,11 +94,28 @@ export default function FormularioEmpleado(props) {
                   >
                     <DatePicker
                       label="Fecha Ingreso"
-                      value={fecha}
-                      onChange={(newValue) => {
-                        setFecha(newValue);
+                      value={values.admissionDate}
+                      onChange={(value) => {
+                        setFieldValue("admissionDate", value);
                       }}
-                      renderInput={(params) => <TextField {...params} />}
+                      disabled={visualizar}
+                      renderInput={(params) => {
+                        return (
+                          <TextField
+                            {...params}
+                            className={classes.pos}
+                            required
+                            id="admissionDate"
+                            fullWidth
+                            error={Boolean(
+                              touched.admissionDate && errors.admissionDate
+                            )}
+                            helperText={
+                              touched.admissionDate && errors.admissionDate
+                            }
+                          />
+                        );
+                      }}
                     />
                   </LocalizationProvider>
                 </Grid>
@@ -87,14 +123,14 @@ export default function FormularioEmpleado(props) {
                   <TextField
                     className={classes.pos}
                     required
-                    autoFocus
                     margin="dense"
-                    id="nombre"
+                    id="firstName"
                     fullWidth
+                    disabled={visualizar}
                     label="Nombre"
-                    {...getFieldProps("nombre")}
-                    error={Boolean(touched.nombre && errors.nombre)}
-                    helperText={touched.nombre && errors.nombre}
+                    {...getFieldProps("firstName")}
+                    error={Boolean(touched.firstName && errors.firstName)}
+                    helperText={touched.firstName && errors.firstName}
                   />
                 </Grid>
                 <Grid container item xs={6}>
@@ -102,12 +138,13 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="apellidos"
+                    id="lastName"
                     fullWidth
+                    disabled={visualizar}
                     label="Apellidos"
-                    {...getFieldProps("apellidos")}
-                    error={Boolean(touched.apellidos && errors.apellidos)}
-                    helperText={touched.apellidos && errors.apellidos}
+                    {...getFieldProps("lastName")}
+                    error={Boolean(touched.lastName && errors.lastName)}
+                    helperText={touched.lastName && errors.lastName}
                   />
                 </Grid>
                 <Grid container item xs={6}>
@@ -115,12 +152,13 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="rut"
+                    id="run"
                     label="Rut"
                     fullWidth
-                    {...getFieldProps("rut")}
-                    error={Boolean(touched.rut && errors.rut)}
-                    helperText={touched.rut && errors.rut}
+                    disabled={visualizar}
+                    {...getFieldProps("run")}
+                    error={Boolean(touched.run && errors.run)}
+                    helperText={touched.run && errors.run}
                   />
                 </Grid>
 
@@ -129,12 +167,13 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="direccion"
+                    id="address"
                     label="Dirección"
                     fullWidth
-                    {...getFieldProps("direccion")}
-                    error={Boolean(touched.direccion && errors.direccion)}
-                    helperText={touched.direccion && errors.direccion}
+                    disabled={visualizar}
+                    {...getFieldProps("address")}
+                    error={Boolean(touched.address && errors.address)}
+                    helperText={touched.address && errors.address}
                   />
                 </Grid>
                 <Grid container item xs={6}>
@@ -142,12 +181,13 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="ciudad"
+                    id="city"
                     label="Ciudad"
                     fullWidth
-                    {...getFieldProps("ciudad")}
-                    error={Boolean(touched.ciudad && errors.ciudad)}
-                    helperText={touched.ciudad && errors.ciudad}
+                    disabled={visualizar}
+                    {...getFieldProps("city")}
+                    error={Boolean(touched.city && errors.city)}
+                    helperText={touched.city && errors.city}
                   />
                 </Grid>
                 <Grid container item xs={6}>
@@ -155,21 +195,22 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="comuna"
+                    id="state"
                     label="Comuna"
                     fullWidth
-                    {...getFieldProps("comuna")}
-                    error={Boolean(touched.comuna && errors.comuna)}
-                    helperText={touched.comuna && errors.comuna}
+                    disabled={visualizar}
+                    {...getFieldProps("state")}
+                    error={Boolean(touched.state && errors.state)}
+                    helperText={touched.state && errors.state}
                   />
                 </Grid>
 
-                {rol !== "cosechador" && rol !== "null" && (
+                {values.rol !== "harvester" && values.rol !== "" && (
                   <>
                     <Grid container item xs={12}>
-                      <Divider style={{ width: "85%" }} textAlign="left">
+                      <Divider style={{ width: "100%" }} textAlign="center">
                         <Chip
-                          label="Credenciales Página web"
+                          label="Credenciales de Página Web Para el Nuevo Usuario"
                           icon={
                             <Icon
                               icon={eyeFill}
@@ -183,28 +224,46 @@ export default function FormularioEmpleado(props) {
                     <Grid container item xs={6}>
                       <TextField
                         className={classes.pos}
-                        required
                         margin="dense"
                         id="email"
                         label="Email"
+                        autoComplete="new-email"
                         fullWidth
+                        disabled={visualizar}
                         {...getFieldProps("email")}
                         error={Boolean(touched.email && errors.email)}
                         helperText={touched.email && errors.email}
                       />
                     </Grid>
                     <Grid container item xs={6}>
-                      <TextField
-                        className={classes.pos}
-                        required
-                        margin="dense"
-                        id="password"
-                        label="Contraseña"
-                        fullWidth
-                        {...getFieldProps("password")}
-                        error={Boolean(touched.password && errors.password)}
-                        helperText={touched.password && errors.password}
-                      />
+                      {!visualizar && (
+                        <TextField
+                          className={classes.pos}
+                          margin="dense"
+                          type={showPassword ? "text" : "password"}
+                          id="password"
+                          label="Contraseña"
+                          fullWidth
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={handleShowPassword}
+                                  edge="end"
+                                >
+                                  <Icon
+                                    icon={showPassword ? eyeFill : eyeOffFill}
+                                  />
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                          autoComplete="new-password"
+                          {...getFieldProps("password")}
+                          error={Boolean(touched.password && errors.password)}
+                          helperText={touched.password && errors.password}
+                        />
+                      )}
                     </Grid>
                   </>
                 )}

@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { filter } from "lodash";
-import { sentenceCase } from "change-case";
 import { Icon } from "@iconify/react";
-import { makeStyles } from "@mui/styles";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import eyeFill from "@iconify/icons-eva/eye-fill";
 import plusFill from "@iconify/icons-eva/plus-fill";
-import Label from "../Label";
+import { Alerta } from "../Alert";
 import * as locales from "@mui/material/locale";
 // material
 import {
@@ -70,18 +68,9 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-const styles = makeStyles((theme) => ({
-  title: {
-    textAlign: "center",
-    fontSize: "24px",
-    marginTop: 20,
-  },
-}));
-
 export default function TablaUsuarios(props) {
   const { usuarios } = props;
   const [locale] = useState("esES");
-  const classes = styles();
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
   const [selected, setSelected] = useState([]);
@@ -89,7 +78,24 @@ export default function TablaUsuarios(props) {
   const [filterName, setFilterName] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
+  const [visualizar, setVisualizar] = useState("");
   const [loadingTable, setLoadingTable] = useState(true);
+  const [showAlert, setShowAlert] = useState(false);
+  const [message, setMessage] = useState("");
+  const [color, setColor] = useState("success");
+  const [usuario, setUsuario] = useState({
+    firstName: "",
+    lastName: "",
+    run: "",
+    address: "",
+    city: "",
+    state: "",
+    email: "",
+    rol: "",
+    password: "",
+    admissionDate: "",
+    isenabled: "",
+  });
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -136,6 +142,35 @@ export default function TablaUsuarios(props) {
     }
   }, [usuarios]);
 
+  const mostrarRol = (rol) => {
+    if (rol === "harvester") return "Cosechador";
+    if (rol === "admin") return "Administrador";
+    if (rol === "company") return "Empresa";
+    if (rol === "planner") return "Planillero";
+  };
+
+  const handleAgregar = () => {
+    setUsuario({
+      firstName: "",
+      lastName: "",
+      run: "",
+      address: "",
+      city: "",
+      state: "",
+      email: "",
+      rol: "",
+      password: "",
+      admissionDate: "",
+    });
+    setVisualizar(false);
+    setOpen(true);
+  };
+
+  const handleVisualizar = (user) => {
+    setUsuario(user);
+    setVisualizar(true);
+    setOpen(true);
+  };
   return (
     <>
       <Grid
@@ -159,7 +194,7 @@ export default function TablaUsuarios(props) {
               <Container>
                 <Button
                   variant="contained"
-                  onClick={() => setOpen(true)}
+                  onClick={() => handleAgregar()}
                   startIcon={<Icon icon={plusFill} />}
                   style={{ minWidth: "200px", backgroundColor: "#4BC74F" }}
                 >
@@ -196,11 +231,15 @@ export default function TablaUsuarios(props) {
                         <TableCell align="left">
                           {firstName} {lastName}
                         </TableCell>
-                        <TableCell align="left">{rol}</TableCell>
+                        <TableCell align="left">{mostrarRol(rol)}</TableCell>
                         <TableCell align="left">
                           {" "}
                           <IconButton
-                            onClick={() => console.log("visualizar")}
+                            onClick={() =>
+                              handleVisualizar(
+                                filteredUsers.find((user) => user.run === run)
+                              )
+                            }
                             edge="end"
                           >
                             <Icon icon={eyeFill} color="#4BC74F" />
@@ -248,7 +287,25 @@ export default function TablaUsuarios(props) {
         />
       </ThemeProvider>
 
-      {open && <ModalFormulario open={open} setOpen={setOpen} />}
+      {open && (
+        <ModalFormulario
+          open={open}
+          setOpen={setOpen}
+          setShowAlert={setShowAlert}
+          setMessage={setMessage}
+          setColor={setColor}
+          usuario={usuario}
+          visualizar={visualizar}
+        />
+      )}
+      {showAlert && (
+        <Alerta
+          showAlert={showAlert}
+          setShowAlert={setShowAlert}
+          color={color}
+          message={message}
+        />
+      )}
     </>
   );
 }

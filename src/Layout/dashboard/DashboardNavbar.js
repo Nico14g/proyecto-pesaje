@@ -116,7 +116,7 @@ export default function DashboardNavbar({ open, setOpen }) {
               >
                 <Box sx={{ my: 1.5, px: 2.5 }}>
                   <Typography variant="subtitle1" noWrap>
-                    {userData.firstName}
+                    {userData.firstName} {userData.lastName}
                   </Typography>
                 </Box>
 

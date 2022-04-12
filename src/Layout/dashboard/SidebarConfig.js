@@ -17,8 +17,8 @@ const sidebarConfig = [
     icon: getIcon("bxs:report"),
   },
   {
-    title: "configuración",
-    path: "/dashboard/configuracion",
+    title: "categorias",
+    path: "/dashboard/categorias",
     icon: getIcon("eos-icons:rotating-gear"),
   },
 ];
