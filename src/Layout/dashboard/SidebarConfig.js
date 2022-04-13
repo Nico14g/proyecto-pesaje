@@ -17,9 +17,14 @@ const sidebarConfig = [
     icon: getIcon("bxs:report"),
   },
   {
-    title: "categorias",
+    title: "categorías",
     path: "/dashboard/categorias",
-    icon: getIcon("eos-icons:rotating-gear"),
+    icon: getIcon("ci:list-checklist"),
+  },
+  {
+    title: "bandejas",
+    path: "/dashboard/bandejas",
+    icon: getIcon("ion:file-tray-sharp"),
   },
 ];
 

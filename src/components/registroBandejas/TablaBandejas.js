@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { filter } from "lodash";
 import { Icon } from "@iconify/react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import eyeFill from "@iconify/icons-eva/eye-fill";
 import plusFill from "@iconify/icons-eva/plus-fill";
+import eyeFill from "@iconify/icons-eva/eye-fill";
+import edit from "@iconify/icons-eva/edit-2-fill";
 import { Alerta } from "../Alert";
 import * as locales from "@mui/material/locale";
 // material
@@ -17,20 +18,22 @@ import {
   TablePagination,
   TableRow,
   Typography,
-  IconButton,
   Container,
   Button,
   Paper,
+  IconButton,
+  Divider,
 } from "@mui/material";
 import { TablaHead, TablaToolbar } from "../tablas";
 import Scrollbar from "../Scrollbar";
 import SearchNotFound from "../SearchNotFound";
-import ModalFormulario from "./ModalFormulario";
+
+import useAuth from "../../Auth/Auth";
+import ModalBandeja from "./ModalBandeja";
 
 const TABLE_HEAD = [
-  { id: "run", label: "Rut", alignRight: false },
-  { id: "nombreUsuario", label: "Nombre", alignRight: false },
-  { id: "rol", label: "Rol", alignRight: false },
+  { id: "nombre", label: "Nombre Bandeja", alignRight: false },
+  { id: "dcto", label: "Peso Tara", alignRight: false },
   { id: "acciones", label: "Acciones", alignRight: false },
 ];
 
@@ -59,18 +62,19 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(array, (_user) => {
       return (
-        _user.run.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        _user.firstName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        _user.lastName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        _user.rol.toLowerCase().indexOf(query.toLowerCase()) !== -1
+        _user.nombre.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        _user.dcto
+          .toString()
+          .toLowerCase()
+          .indexOf(query.toString().toLowerCase()) !== -1
       );
     });
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function TablaUsuarios(props) {
-  const { usuarios } = props;
+export default function TablaBandejas(props) {
+  const { bandejas } = props;
   const [locale] = useState("esES");
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
@@ -79,24 +83,17 @@ export default function TablaUsuarios(props) {
   const [filterName, setFilterName] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
-  const [visualizar, setVisualizar] = useState("");
   const [loadingTable, setLoadingTable] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [color, setColor] = useState("success");
-  const [usuario, setUsuario] = useState({
-    firstName: "",
-    lastName: "",
-    run: "",
-    address: "",
-    city: "",
-    state: "",
-    email: "",
-    rol: "",
-    password: "",
-    admissionDate: "",
-    isenabled: "",
+  const [visualizar, setVisualizar] = useState(false);
+  const [editar, setEditar] = useState(false);
+  const [bandeja, setBandeja] = useState({
+    nombre: "",
+    dcto: 0.1,
   });
+  const { userData } = useAuth();
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -106,7 +103,7 @@ export default function TablaUsuarios(props) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = usuarios?.map((n) => n.nombreTarea);
+      const newSelecteds = bandejas?.map((n) => n.nombreTarea);
       setSelected(newSelecteds);
       return;
     }
@@ -127,10 +124,10 @@ export default function TablaUsuarios(props) {
   };
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - usuarios?.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - bandejas?.length) : 0;
 
   const filteredUsers = applySortFilter(
-    usuarios,
+    bandejas,
     getComparator(order, orderBy),
     filterName
   );
@@ -138,40 +135,35 @@ export default function TablaUsuarios(props) {
   const isUserNotFound = filteredUsers.length === 0;
 
   useEffect(() => {
-    if (usuarios !== undefined) {
+    if (bandejas !== undefined) {
       setLoadingTable(false);
     }
-  }, [usuarios]);
-
-  const mostrarRol = (rol) => {
-    if (rol === "harvester") return "Cosechador";
-    if (rol === "admin") return "Administrador";
-    if (rol === "company") return "Empresa";
-    if (rol === "planner") return "Planillero";
-  };
+  }, [bandejas]);
 
   const handleAgregar = () => {
-    setUsuario({
-      firstName: "",
-      lastName: "",
-      run: "",
-      address: "",
-      city: "",
-      state: "",
-      email: "",
-      rol: "",
-      password: "",
-      admissionDate: "",
+    setBandeja({
+      nombre: "",
+      dcto: 0.1,
     });
+    setEditar(false);
     setVisualizar(false);
     setOpen(true);
   };
 
-  const handleVisualizar = (user) => {
-    setUsuario(user);
+  const handleVisualizar = (bandeja) => {
+    setBandeja(bandeja);
+    setEditar(false);
     setVisualizar(true);
     setOpen(true);
   };
+
+  const handleEditar = (bandeja) => {
+    setBandeja(bandeja);
+    setEditar(true);
+    setVisualizar(false);
+    setOpen(true);
+  };
+
   return (
     <Paper>
       <Grid
@@ -189,22 +181,24 @@ export default function TablaUsuarios(props) {
             onFilterName={handleFilterByName}
           />
         </Grid>
-        <Grid item xs md>
-          <Grid container direction="row-reverse">
-            <Grid item xs={12} md={6} style={{ marginRight: 20 }}>
-              <Container>
-                <Button
-                  variant="contained"
-                  onClick={() => handleAgregar()}
-                  startIcon={<Icon icon={plusFill} />}
-                  style={{ minWidth: "200px", backgroundColor: "#4BC74F" }}
-                >
-                  Agregar Usuario
-                </Button>
-              </Container>
+        {userData.rol !== "planner" && (
+          <Grid item xs md style={{ marginRight: 60 }}>
+            <Grid container direction="row-reverse">
+              <Grid item xs={12} md={6}>
+                <Container>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleAgregar()}
+                    startIcon={<Icon icon={plusFill} />}
+                    style={{ minWidth: "220px", backgroundColor: "#4BC74F" }}
+                  >
+                    Agregar Bandeja
+                  </Button>
+                </Container>
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
+        )}
       </Grid>
       <Scrollbar>
         <TableContainer>
@@ -214,7 +208,7 @@ export default function TablaUsuarios(props) {
                 order={order}
                 orderBy={orderBy}
                 headLabel={TABLE_HEAD}
-                rowCount={usuarios?.length}
+                rowCount={bandejas?.length}
                 numSelected={selected.length}
                 onRequestSort={handleRequestSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -223,22 +217,32 @@ export default function TablaUsuarios(props) {
                 {filteredUsers
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => {
-                    const { run, firstName, lastName, rol } = row;
+                    const { id, dcto, nombre } = row;
                     return (
-                      <TableRow hover key={run} tabIndex={-1} role="checkbox">
+                      <TableRow hover key={id} tabIndex={-1} role="checkbox">
                         <TableCell align="left">
-                          <Typography variant="subtitle2">{run}</Typography>
+                          <Typography variant="subtitle2">{nombre}</Typography>
                         </TableCell>
+                        <TableCell align="left">{dcto} KG</TableCell>
                         <TableCell align="left">
-                          {firstName} {lastName}
-                        </TableCell>
-                        <TableCell align="left">{mostrarRol(rol)}</TableCell>
-                        <TableCell align="left">
-                          {" "}
+                          <IconButton
+                            onClick={() =>
+                              handleEditar(
+                                filteredUsers.find(
+                                  (bandeja) => bandeja.id === id
+                                )
+                              )
+                            }
+                            edge="end"
+                          >
+                            <Icon icon={edit} color="#4BC74F" />
+                          </IconButton>{" "}
                           <IconButton
                             onClick={() =>
                               handleVisualizar(
-                                filteredUsers.find((user) => user.run === run)
+                                filteredUsers.find(
+                                  (bandeja) => bandeja.id === id
+                                )
                               )
                             }
                             edge="end"
@@ -280,23 +284,23 @@ export default function TablaUsuarios(props) {
         <TablePagination
           rowsPerPageOptions={[10, 25, 50]}
           component="div"
-          count={usuarios?.length}
+          count={bandejas?.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </ThemeProvider>
-
       {open && (
-        <ModalFormulario
+        <ModalBandeja
           open={open}
           setOpen={setOpen}
           setShowAlert={setShowAlert}
           setMessage={setMessage}
           setColor={setColor}
-          usuario={usuario}
+          bandeja={bandeja}
           visualizar={visualizar}
+          editar={editar}
         />
       )}
       {showAlert && (

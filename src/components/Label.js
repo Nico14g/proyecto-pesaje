@@ -4,8 +4,8 @@ import { alpha, experimentalStyled as styled } from "@mui/material/styles";
 
 // ----------------------------------------------------------------------
 
-const RootStyle = styled("span")(({ theme, styleProps }) => {
-  const { color, variant } = styleProps;
+const RootStyle = styled("span")(({ theme, styleprops }) => {
+  const { color, variant } = styleprops;
 
   const styleFilled = (color) => ({
     color: theme.palette[color].contrastText,
@@ -69,7 +69,7 @@ export default function Label({
   ...other
 }) {
   return (
-    <RootStyle styleProps={{ color, variant }} {...other}>
+    <RootStyle styleprops={{ color, variant }} {...other}>
       {children}
     </RootStyle>
   );

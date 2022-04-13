@@ -174,7 +174,7 @@ export default function ModalFormulario(props) {
                 setCredenciales(false);
                 setOpen(false);
                 setShowAlert(true);
-                navigate("/dashboard/registro-usuarios", { replace: true });
+                navigate("/dashboard/reportes", { replace: true });
               })
               .catch(() => {
                 error();
