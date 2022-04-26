@@ -7,13 +7,14 @@ import {
   Divider,
   IconButton,
   Drawer as MuiDrawer,
+  Typography,
 } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
 import NavSection from "../../components/NavSection";
 //
 import sidebarConfig from "./SidebarConfig";
-
+import logo from "../../assets/agricultura.png";
 // ----------------------------------------------------------------------
 
 DashboardSidebar.propTypes = {
@@ -68,6 +69,11 @@ export default function DashboardSidebar({ open, setOpen }) {
             px: [1],
           }}
         >
+          <img src={logo} alt="logo" width={40} style={{ marginRight: 5 }} />
+
+          <Typography style={{ fontWeight: "bolder" }}>
+            Gestión Cosecha
+          </Typography>
           <IconButton onClick={setOpen}>
             <ChevronLeftIcon />
           </IconButton>

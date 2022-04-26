@@ -3,10 +3,11 @@ import { filter } from "lodash";
 import { Icon } from "@iconify/react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import plusFill from "@iconify/icons-eva/plus-fill";
-import eyeFill from "@iconify/icons-eva/eye-fill";
-import edit from "@iconify/icons-eva/edit-2-fill";
+import Clock from "@mui/icons-material/Schedule";
 import { Alerta } from "../Alert";
 import * as locales from "@mui/material/locale";
+import Label from "../Label";
+import { sentenceCase } from "change-case";
 // material
 import {
   Grid,
@@ -21,20 +22,20 @@ import {
   Container,
   Button,
   Paper,
-  IconButton,
   Divider,
 } from "@mui/material";
 import { TablaHead, TablaToolbar } from "../tablas";
 import Scrollbar from "../Scrollbar";
 import SearchNotFound from "../SearchNotFound";
-
 import useAuth from "../../Auth/Auth";
-import ModalBandeja from "./ModalBandeja";
+import { IndeterminateCheckBoxSharp } from "@mui/icons-material";
 
 const TABLE_HEAD = [
-  { id: "nombre", label: "Nombre Bandeja", alignRight: false },
-  { id: "dcto", label: "Peso Tara", alignRight: false },
-  { id: "acciones", label: "Acciones", alignRight: false },
+  { id: "name", label: "Nombre Categoría", alignRight: false },
+  { id: "nombre", label: "Nombre Temporero", alignRight: false },
+  { id: "run", label: "RUT", alignRight: false },
+  { id: "Pesoacumulado", label: "Peso Acumulado", alignRight: false },
+  { id: "ultimo", label: "Último Registro", alignRight: false },
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -61,20 +62,14 @@ function applySortFilter(array, comparator, query) {
   });
   if (query) {
     return filter(array, (_user) => {
-      return (
-        _user.nombre.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        _user.dcto
-          .toString()
-          .toLowerCase()
-          .indexOf(query.toString().toLowerCase()) !== -1
-      );
+      return _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1;
     });
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function TablaBandejas(props) {
-  const { bandejas } = props;
+export default function TablaHistorial(props) {
+  const { categorias } = props;
   const [locale] = useState("esES");
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
@@ -87,12 +82,6 @@ export default function TablaBandejas(props) {
   const [showAlert, setShowAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [color, setColor] = useState("success");
-  const [visualizar, setVisualizar] = useState(false);
-  const [editar, setEditar] = useState(false);
-  const [bandeja, setBandeja] = useState({
-    nombre: "",
-    dcto: 0.1,
-  });
   const { userData } = useAuth();
 
   const handleRequestSort = (event, property) => {
@@ -103,7 +92,7 @@ export default function TablaBandejas(props) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = bandejas?.map((n) => n.nombreTarea);
+      const newSelecteds = categorias?.map((n) => n.nombreTarea);
       setSelected(newSelecteds);
       return;
     }
@@ -124,10 +113,10 @@ export default function TablaBandejas(props) {
   };
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - bandejas?.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - categorias?.length) : 0;
 
   const filteredUsers = applySortFilter(
-    bandejas,
+    categorias,
     getComparator(order, orderBy),
     filterName
   );
@@ -135,35 +124,46 @@ export default function TablaBandejas(props) {
   const isUserNotFound = filteredUsers.length === 0;
 
   useEffect(() => {
-    if (bandejas !== undefined) {
+    if (categorias !== undefined) {
       setLoadingTable(false);
     }
-  }, [bandejas]);
+  }, [categorias]);
 
   const handleAgregar = () => {
-    setBandeja({
-      nombre: "",
-      dcto: 0.1,
-    });
-    setEditar(false);
-    setVisualizar(false);
     setOpen(true);
   };
 
-  const handleVisualizar = (bandeja) => {
-    setBandeja(bandeja);
-    setEditar(false);
-    setVisualizar(true);
-    setOpen(true);
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
   };
 
-  const handleEditar = (bandeja) => {
-    setBandeja(bandeja);
-    setEditar(true);
-    setVisualizar(false);
-    setOpen(true);
+  const mostrarFechaTermino = (dateEnd) => {
+    if (dateEnd === "") return true;
+    return dateEnd.toDate().toLocaleDateString("es-CL", options);
   };
 
+  //   const estructurar = (id, name, registers) => {
+  //     let estructura = [];
+  //     estructura.push(
+  //       registers.map((registro) => {
+  //         return {
+  //           id: id,
+  //           name: registro.firstName + " " + registro.lastName,
+  //           run: registro.id,
+  //           acumulate: registro.acumulate,
+  //           lastDate: registro.lastDate,
+  //         };
+  //       })
+  //     );
+
+  //     console.log(estructura, "estructura");
+  //   };
+
+  console.log(categorias);
   return (
     <Paper>
       <Grid
@@ -181,23 +181,6 @@ export default function TablaBandejas(props) {
             onFilterName={handleFilterByName}
           />
         </Grid>
-
-        <Grid item xs md style={{ marginRight: 60 }}>
-          <Grid container direction="row-reverse">
-            <Grid item xs={12} md={6}>
-              <Container>
-                <Button
-                  variant="contained"
-                  onClick={() => handleAgregar()}
-                  startIcon={<Icon icon={plusFill} />}
-                  style={{ minWidth: "220px", backgroundColor: "#4BC74F" }}
-                >
-                  Agregar Bandeja
-                </Button>
-              </Container>
-            </Grid>
-          </Grid>
-        </Grid>
       </Grid>
       <Scrollbar>
         <TableContainer>
@@ -207,51 +190,41 @@ export default function TablaBandejas(props) {
                 order={order}
                 orderBy={orderBy}
                 headLabel={TABLE_HEAD}
-                rowCount={bandejas?.length}
+                rowCount={categorias?.length}
                 numSelected={selected.length}
                 onRequestSort={handleRequestSort}
                 onSelectAllClick={handleSelectAllClick}
               />
               <TableBody>
-                {filteredUsers
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => {
-                    const { id, dcto, nombre } = row;
-                    return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox">
-                        <TableCell align="left">
-                          <Typography variant="subtitle2">{nombre}</Typography>
-                        </TableCell>
-                        <TableCell align="left">{dcto} KG</TableCell>
-                        <TableCell align="left">
-                          <IconButton
-                            onClick={() =>
-                              handleEditar(
-                                filteredUsers.find(
-                                  (bandeja) => bandeja.id === id
-                                )
-                              )
-                            }
-                            edge="end"
-                          >
-                            <Icon icon={edit} color="#4BC74F" />
-                          </IconButton>{" "}
-                          <IconButton
-                            onClick={() =>
-                              handleVisualizar(
-                                filteredUsers.find(
-                                  (bandeja) => bandeja.id === id
-                                )
-                              )
-                            }
-                            edge="end"
-                          >
-                            <Icon icon={eyeFill} color="#4BC74F" />
-                          </IconButton>{" "}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                {categorias.length > 0 &&
+                  categorias[0].registers.length > 0 &&
+                  filteredUsers
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row) => {
+                      const { id, name, registers } = row;
+                      console.log(row.registers);
+                      return (
+                        <TableRow hover key={id} tabIndex={-1} role="checkbox">
+                          <TableCell align="left">
+                            <Typography variant="subtitle2">{name}</Typography>
+                          </TableCell>
+                          <TableCell align="left">
+                            {registers[0].firstName +
+                              " " +
+                              registers[0].lastName}
+                          </TableCell>
+                          <TableCell align="left">{registers[0].id}</TableCell>
+                          <TableCell align="left">
+                            {registers[0].acumulate + " KG"}
+                          </TableCell>
+                          <TableCell align="left">
+                            {registers[0].lastDate
+                              .toDate()
+                              .toLocaleDateString("es-CL", options)}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                 {emptyRows > 0 && (
                   <TableRow style={{ height: 53 * emptyRows }}>
                     <TableCell colSpan={6} />
@@ -283,25 +256,14 @@ export default function TablaBandejas(props) {
         <TablePagination
           rowsPerPageOptions={[10, 25, 50]}
           component="div"
-          count={bandejas?.length}
+          count={categorias?.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </ThemeProvider>
-      {open && (
-        <ModalBandeja
-          open={open}
-          setOpen={setOpen}
-          setShowAlert={setShowAlert}
-          setMessage={setMessage}
-          setColor={setColor}
-          bandeja={bandeja}
-          visualizar={visualizar}
-          editar={editar}
-        />
-      )}
+
       {showAlert && (
         <Alerta
           showAlert={showAlert}
