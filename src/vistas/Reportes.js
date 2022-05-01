@@ -32,7 +32,7 @@ const styles = makeStyles((theme) => ({
   },
 }));
 
-export default function Categorias() {
+export default function Reportes() {
   const open = useStore((state) => state.open);
   const [categorias, setCategorias] = useState([]);
   const { userData } = useAuth();
