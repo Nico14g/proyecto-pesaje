@@ -163,7 +163,6 @@ export default function TablaHistorial(props) {
   //     console.log(estructura, "estructura");
   //   };
 
-  console.log(categorias);
   return (
     <Paper>
       <Grid
@@ -202,7 +201,7 @@ export default function TablaHistorial(props) {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
                       const { id, name, registers } = row;
-                      console.log(row.registers);
+
                       return (
                         <TableRow hover key={id} tabIndex={-1} role="checkbox">
                           <TableCell align="left">

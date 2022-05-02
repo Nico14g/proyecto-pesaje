@@ -1,19 +1,8 @@
 import { useTheme, styled } from "@mui/material/styles";
-import {
-  Avatar,
-  Box,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Typography,
-  Grid,
-} from "@mui/material";
-import Iconify from "../Iconify";
+import { Box, Typography, Grid } from "@mui/material";
 import MainCard from "../MainCard";
 import SkeletonTotalPesaje from "./SkeletonTotalPesaje";
 import ReactApexChart from "react-apexcharts";
-import Chart from "react-apexcharts";
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
   backgroundColor: theme.palette.primary.light,
