@@ -127,13 +127,18 @@ export default function MayorCategoria(props) {
                 </Typography>
               </Grid>
               <Grid item xs={5}>
-                <Box style={{ width: 150 }}>
-                  <ReactApexChart
-                    options={pieChart.options}
-                    series={pieChart.series}
-                    type="donut"
-                  />
-                </Box>
+                {mayorCategoria.data.length > 0 ? (
+                  <Box>
+                    <ReactApexChart
+                      options={pieChart.options}
+                      series={pieChart.series}
+                      type="donut"
+                      width={150}
+                    />
+                  </Box>
+                ) : (
+                  <Box style={{ height: 104 }}></Box>
+                )}
               </Grid>
             </Grid>
           </Box>

@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { filter } from "lodash";
-import { Icon } from "@iconify/react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import plusFill from "@iconify/icons-eva/plus-fill";
-import Clock from "@mui/icons-material/Schedule";
 import { Alerta } from "../Alert";
 import * as locales from "@mui/material/locale";
-import Label from "../Label";
-import { sentenceCase } from "change-case";
 // material
 import {
-  Grid,
   Skeleton,
   Table,
   TableBody,
@@ -19,23 +13,17 @@ import {
   TablePagination,
   TableRow,
   Typography,
-  Container,
-  Button,
   Paper,
-  Divider,
 } from "@mui/material";
-import { TablaHead, TablaToolbar } from "../tablas";
+import { TablaHead } from "../tablas";
 import Scrollbar from "../Scrollbar";
 import SearchNotFound from "../SearchNotFound";
 import useAuth from "../../Auth/Auth";
-import { IndeterminateCheckBoxSharp } from "@mui/icons-material";
 
 const TABLE_HEAD = [
-  { id: "name", label: "Nombre Categoría", alignRight: false },
-  { id: "nombre", label: "Nombre Temporero", alignRight: false },
   { id: "run", label: "RUT", alignRight: false },
-  { id: "Pesoacumulado", label: "Peso Acumulado", alignRight: false },
-  { id: "ultimo", label: "Último Registro", alignRight: false },
+  { id: "peso", label: "Peso", alignRight: false },
+  { id: "fecha", label: "Fecha", alignRight: false },
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -69,14 +57,15 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function TablaHistorial(props) {
-  const { categorias } = props;
+  const { id, nombre, registros } = props;
+  console.log(registros);
   const [locale] = useState("esES");
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState("nombreTarea");
   const [filterName, setFilterName] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [open, setOpen] = useState(false);
   const [loadingTable, setLoadingTable] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
@@ -92,7 +81,7 @@ export default function TablaHistorial(props) {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = categorias?.map((n) => n.nombreTarea);
+      const newSelecteds = registros?.map((n) => n.nombreTarea);
       setSelected(newSelecteds);
       return;
     }
@@ -108,15 +97,11 @@ export default function TablaHistorial(props) {
     setPage(0);
   };
 
-  const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
-  };
-
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - categorias?.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - registros?.length) : 0;
 
   const filteredUsers = applySortFilter(
-    categorias,
+    registros,
     getComparator(order, orderBy),
     filterName
   );
@@ -124,14 +109,10 @@ export default function TablaHistorial(props) {
   const isUserNotFound = filteredUsers.length === 0;
 
   useEffect(() => {
-    if (categorias !== undefined) {
+    if (registros !== undefined) {
       setLoadingTable(false);
     }
-  }, [categorias]);
-
-  const handleAgregar = () => {
-    setOpen(true);
-  };
+  }, [registros]);
 
   const options = {
     year: "numeric",
@@ -140,12 +121,6 @@ export default function TablaHistorial(props) {
     hour: "numeric",
     minute: "numeric",
   };
-
-  const mostrarFechaTermino = (dateEnd) => {
-    if (dateEnd === "") return true;
-    return dateEnd.toDate().toLocaleDateString("es-CL", options);
-  };
-
   //   const estructurar = (id, name, registers) => {
   //     let estructura = [];
   //     estructura.push(
@@ -165,23 +140,7 @@ export default function TablaHistorial(props) {
 
   return (
     <Paper>
-      <Grid
-        container
-        style={{ padding: "1rem 1.5rem 0rem 1.5rem" }}
-        direction="row"
-        justifyContent="flex-start"
-        alignItems="center"
-        spacing={2}
-      >
-        <Grid item xs md>
-          <TablaToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
-          />
-        </Grid>
-      </Grid>
-      <Scrollbar>
+      <Scrollbar style={{ minHeight: 302, maxHeight: 302 }}>
         <TableContainer>
           {!loadingTable ? (
             <Table>
@@ -189,46 +148,37 @@ export default function TablaHistorial(props) {
                 order={order}
                 orderBy={orderBy}
                 headLabel={TABLE_HEAD}
-                rowCount={categorias?.length}
+                rowCount={registros?.length}
                 numSelected={selected.length}
                 onRequestSort={handleRequestSort}
                 onSelectAllClick={handleSelectAllClick}
               />
               <TableBody>
-                {categorias.length > 0 &&
-                  categorias[0].registers.length > 0 &&
-                  filteredUsers
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => {
-                      const { id, name, registers } = row;
+                {filteredUsers
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row) => {
+                    console.log(row);
 
-                      return (
-                        <TableRow hover key={id} tabIndex={-1} role="checkbox">
-                          <TableCell align="left">
-                            <Typography variant="subtitle2">{name}</Typography>
-                          </TableCell>
-                          <TableCell align="left">
-                            {registers[0].firstName +
-                              " " +
-                              registers[0].lastName}
-                          </TableCell>
-                          <TableCell align="left">{registers[0].id}</TableCell>
-                          <TableCell align="left">
-                            {registers[0].acumulate + " KG"}
-                          </TableCell>
-                          <TableCell align="left">
-                            {registers[0].lastDate
-                              .toDate()
-                              .toLocaleDateString("es-CL", options)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                {emptyRows > 0 && (
-                  <TableRow style={{ height: 53 * emptyRows }}>
-                    <TableCell colSpan={6} />
-                  </TableRow>
-                )}
+                    return (
+                      <TableRow
+                        hover
+                        key={row.date.toDate()}
+                        tabIndex={-1}
+                        role="checkbox"
+                      >
+                        <TableCell align="left">
+                          <Typography variant="subtitle2">{id}</Typography>
+                        </TableCell>
+
+                        <TableCell align="left">{row.weight + " KG"}</TableCell>
+                        <TableCell align="left">
+                          {row.date
+                            .toDate()
+                            .toLocaleDateString("es-CL", options)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
               </TableBody>
               {isUserNotFound && (
                 <TableBody>
@@ -244,7 +194,7 @@ export default function TablaHistorial(props) {
               )}
             </Table>
           ) : (
-            <Skeleton variant="rectangular" width="100%" height="500px" />
+            <Skeleton variant="rectangular" width="100%" height="370px" />
           )}
         </TableContainer>
       </Scrollbar>
@@ -253,9 +203,9 @@ export default function TablaHistorial(props) {
         theme={(outerTheme) => createTheme(outerTheme, locales[locale])}
       >
         <TablePagination
-          rowsPerPageOptions={[10, 25, 50]}
+          rowsPerPageOptions={[5]}
           component="div"
-          count={categorias?.length}
+          count={registros?.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
