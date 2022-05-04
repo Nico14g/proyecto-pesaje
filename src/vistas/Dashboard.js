@@ -757,12 +757,9 @@ export default function Dashboard() {
                       {selectedTemporero !== null && (
                         <TablaHistorial
                           id={selectedTemporero.id}
-                          nombre={
-                            selectedTemporero.firstName +
-                            " " +
-                            selectedTemporero.lastName
-                          }
-                          registros={selectedTemporero.workerRegisters}
+                          registros={selectedTemporero.workerRegisters.sort(
+                            (a, b) => b.date.toDate() - a.date.toDate()
+                          )}
                         />
                       )}
                     </Box>

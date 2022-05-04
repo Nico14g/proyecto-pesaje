@@ -35,6 +35,13 @@ function descendingComparator(a, b, orderBy) {
   }
   return 0;
 }
+const options = {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+};
 
 function getComparator(order, orderBy) {
   return order === "desc"
@@ -50,14 +57,21 @@ function applySortFilter(array, comparator, query) {
   });
   if (query) {
     return filter(array, (_user) => {
-      return _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1;
+      return (
+        _user.weight.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        _user.date
+          .toDate()
+          .toLocaleDateString("es-CL", options)
+          .toLowerCase()
+          .indexOf(query.toLowerCase()) !== -1
+      );
     });
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
 export default function TablaHistorial(props) {
-  const { id, nombre, registros } = props;
+  const { id, registros } = props;
   console.log(registros);
   const [locale] = useState("esES");
   const [page, setPage] = useState(0);
@@ -65,7 +79,7 @@ export default function TablaHistorial(props) {
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState("nombreTarea");
   const [filterName, setFilterName] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
   const [loadingTable, setLoadingTable] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
@@ -114,13 +128,6 @@ export default function TablaHistorial(props) {
     }
   }, [registros]);
 
-  const options = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-  };
   //   const estructurar = (id, name, registers) => {
   //     let estructura = [];
   //     estructura.push(
@@ -140,70 +147,66 @@ export default function TablaHistorial(props) {
 
   return (
     <Paper>
-      <Scrollbar style={{ minHeight: 302, maxHeight: 302 }}>
-        <TableContainer>
-          {!loadingTable ? (
-            <Table>
-              <TablaHead
-                order={order}
-                orderBy={orderBy}
-                headLabel={TABLE_HEAD}
-                rowCount={registros?.length}
-                numSelected={selected.length}
-                onRequestSort={handleRequestSort}
-                onSelectAllClick={handleSelectAllClick}
-              />
+      <TableContainer style={{ minHeight: 302, maxHeight: 302 }}>
+        {!loadingTable ? (
+          <Table stickyHeader>
+            <TablaHead
+              order={order}
+              orderBy={orderBy}
+              headLabel={TABLE_HEAD}
+              rowCount={registros?.length}
+              numSelected={selected.length}
+              onRequestSort={handleRequestSort}
+              onSelectAllClick={handleSelectAllClick}
+            />
+            <TableBody>
+              {filteredUsers
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => {
+                  console.log(row);
+
+                  return (
+                    <TableRow
+                      hover
+                      key={row.date.toDate()}
+                      tabIndex={-1}
+                      role="checkbox"
+                    >
+                      <TableCell align="left">
+                        <Typography variant="subtitle2">{id}</Typography>
+                      </TableCell>
+
+                      <TableCell align="left">{row.weight + " KG"}</TableCell>
+                      <TableCell align="left">
+                        {row.date.toDate().toLocaleDateString("es-CL", options)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+            {isUserNotFound && (
               <TableBody>
-                {filteredUsers
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => {
-                    console.log(row);
-
-                    return (
-                      <TableRow
-                        hover
-                        key={row.date.toDate()}
-                        tabIndex={-1}
-                        role="checkbox"
-                      >
-                        <TableCell align="left">
-                          <Typography variant="subtitle2">{id}</Typography>
-                        </TableCell>
-
-                        <TableCell align="left">{row.weight + " KG"}</TableCell>
-                        <TableCell align="left">
-                          {row.date
-                            .toDate()
-                            .toLocaleDateString("es-CL", options)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                <TableRow>
+                  <TableCell align="center" colSpan={10} sx={{ py: 3 }}>
+                    <SearchNotFound
+                      searchFilter={true}
+                      searchQuery={filterName}
+                    />
+                  </TableCell>
+                </TableRow>
               </TableBody>
-              {isUserNotFound && (
-                <TableBody>
-                  <TableRow>
-                    <TableCell align="center" colSpan={10} sx={{ py: 3 }}>
-                      <SearchNotFound
-                        searchFilter={true}
-                        searchQuery={filterName}
-                      />
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              )}
-            </Table>
-          ) : (
-            <Skeleton variant="rectangular" width="100%" height="370px" />
-          )}
-        </TableContainer>
-      </Scrollbar>
+            )}
+          </Table>
+        ) : (
+          <Skeleton variant="rectangular" width="100%" height="370px" />
+        )}
+      </TableContainer>
 
       <ThemeProvider
         theme={(outerTheme) => createTheme(outerTheme, locales[locale])}
       >
         <TablePagination
-          rowsPerPageOptions={[5]}
+          rowsPerPageOptions={[10, 50, 100]}
           component="div"
           count={registros?.length}
           rowsPerPage={rowsPerPage}
