@@ -61,7 +61,9 @@ function applySortFilter(array, comparator, query) {
   });
   if (query) {
     return filter(array, (_user) => {
-      return _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1;
+      return (
+        _user.nombreCategoria.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      );
     });
   }
   return stabilizedThis.map((el) => el[0]);
@@ -140,9 +142,9 @@ export default function TablaCategorias(props) {
     minute: "numeric",
   };
 
-  const mostrarFechaTermino = (dateEnd) => {
-    if (dateEnd === "") return true;
-    return dateEnd.toDate().toLocaleDateString("es-CL", options);
+  const mostrarFechaTermino = (fechaTermino) => {
+    if (fechaTermino === "") return true;
+    return fechaTermino.toDate().toLocaleDateString("es-CL", options);
   };
   return (
     <Paper>
@@ -197,25 +199,37 @@ export default function TablaCategorias(props) {
                 {filteredUsers
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => {
-                    const { id, name, dateStart, dateEnd } = row;
+                    const {
+                      idCategoria,
+                      nombreCategoria,
+                      fechaInicio,
+                      fechaTermino,
+                    } = row;
                     return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox">
+                      <TableRow
+                        hover
+                        key={idCategoria}
+                        tabIndex={-1}
+                        role="checkbox"
+                      >
                         <TableCell align="left">
-                          <Typography variant="subtitle2">{name}</Typography>
+                          <Typography variant="subtitle2">
+                            {nombreCategoria}
+                          </Typography>
                         </TableCell>
                         <TableCell align="left">
-                          {dateStart
+                          {fechaInicio
                             .toDate()
                             .toLocaleDateString("es-CL", options)}
                         </TableCell>
                         <TableCell align="left">
-                          {mostrarFechaTermino(dateEnd) === true ? (
+                          {mostrarFechaTermino(fechaTermino) === true ? (
                             <Label variant="ghost" color={"info"}>
                               <Clock /> <Divider> </Divider>
                               {sentenceCase("En Progreso")}
                             </Label>
                           ) : (
-                            mostrarFechaTermino(dateEnd)
+                            mostrarFechaTermino(fechaTermino)
                           )}
                         </TableCell>
                       </TableRow>

@@ -45,12 +45,16 @@ export default function FormularioCategoria(props) {
                   <TextField
                     className={classes.pos}
                     required
-                    id="name"
+                    id="nombreCategoria"
                     fullWidth
                     label="Nombre"
-                    {...getFieldProps("name")}
-                    error={Boolean(touched.name && errors.name)}
-                    helperText={touched.name && errors.name}
+                    {...getFieldProps("nombreCategoria")}
+                    error={Boolean(
+                      touched.nombreCategoria && errors.nombreCategoria
+                    )}
+                    helperText={
+                      touched.nombreCategoria && errors.nombreCategoria
+                    }
                   />
                 </Grid>
                 <Grid container item xs={6}>
@@ -60,9 +64,9 @@ export default function FormularioCategoria(props) {
                   >
                     <DatePicker
                       label="Fecha Inicio"
-                      value={values.dateStart}
+                      value={values.fechaInicio}
                       onChange={(value) => {
-                        setFieldValue("dateStart", value);
+                        setFieldValue("fechaInicio", value);
                       }}
                       renderInput={(params) => {
                         return (
@@ -70,12 +74,14 @@ export default function FormularioCategoria(props) {
                             {...params}
                             className={classes.pos}
                             required
-                            id="dateStart"
+                            id="fechaInicio"
                             fullWidth
                             error={Boolean(
-                              touched.dateStart && errors.dateStart
+                              touched.fechaInicio && errors.fechaInicio
                             )}
-                            helperText={touched.dateStart && errors.dateStart}
+                            helperText={
+                              touched.fechaInicio && errors.fechaInicio
+                            }
                           />
                         );
                       }}

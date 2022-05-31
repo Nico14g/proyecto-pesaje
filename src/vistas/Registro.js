@@ -41,11 +41,11 @@ export default function Registro() {
 
   useEffect(() => {
     const cuid = userData.rol === "company" ? userData.uid : userData.cuid;
-    const q = query(collection(db, "users"), where("cuid", "==", cuid));
+    const q = query(collection(db, "usuarios"), where("cuid", "==", cuid));
     onSnapshot(q, (querySnapshot) => {
       let usuarios = [];
       querySnapshot.forEach((doc) => {
-        if (doc.data().run !== userData.run) {
+        if (doc.data().rut !== userData.rut) {
           usuarios.push(doc.data());
         }
       });
@@ -53,7 +53,7 @@ export default function Registro() {
         setUsuarios(usuarios);
       }
     });
-  }, [userData.uid, userData.cuid, userData.rol, userData.run]);
+  }, [userData.uid, userData.cuid, userData.rol, userData.rut]);
 
   return (
     <div className={classes.div}>

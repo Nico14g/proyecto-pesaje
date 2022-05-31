@@ -115,7 +115,7 @@ export default function MayorCategoria(props) {
                   {texto}
                 </Typography>
                 <Typography variant="subtitle1" sx={{ color: "#fff" }}>
-                  {mayorCategoria.name.toUpperCase()}
+                  {mayorCategoria.nombreCategoria.toUpperCase()}
                 </Typography>
                 <Typography variant="subtitle1" sx={{ color: "#fff" }}>
                   Peso:{" "}

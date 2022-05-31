@@ -86,45 +86,49 @@ export default function ModalFormulario(props) {
   const navigate = useNavigate();
 
   const FormSchema = Yup.object().shape({
-    firstName: Yup.string().required("Nombre del trabajador requerido"),
-    lastName: Yup.string().required("Apellidos del trabajador requerido"),
-    run: Yup.string().test(
+    nombreUsuario: Yup.string().required("Nombre del trabajador requerido"),
+    apellidoUsuario: Yup.string().required(
+      "Apellidos del trabajador requerido"
+    ),
+    rut: Yup.string().test(
       "rut test",
       "Rut no válido",
       (value) => validateRut(value) || value === ""
     ),
-    city: Yup.string().required("Ciudad requerida"),
-    state: Yup.string().required("Comuna requerida"),
+    ciudad: Yup.string().required("Ciudad requerida"),
+    comuna: Yup.string().required("Comuna requerida"),
     rol: Yup.string().required("Rol requerido"),
-    address: Yup.string().required("dirección del trabajador requerida"),
-    email: Yup.string().email("Correo no válido"),
+    direccion: Yup.string().required("dirección del trabajador requerida"),
+    correo: Yup.string().email("Correo no válido"),
     password: Yup.string(),
-    admissionDate: Yup.date().required("Fecha requerida").nullable(),
+    fechaCreacion: Yup.date().required("Fecha requerida").nullable(),
   });
 
   const formik = useFormik({
     initialValues: {
-      firstName: usuario.firstName !== undefined ? usuario.firstName : "",
-      lastName: usuario.lastName !== undefined ? usuario.lastName : "",
-      run: usuario.run !== undefined ? usuario.run : "",
-      address: usuario.address !== undefined ? usuario.address : "",
-      city: usuario.city !== undefined ? usuario.city : "",
-      state: usuario.state !== undefined ? usuario.state : "",
-      email: usuario.email !== undefined ? usuario.email : "",
+      nombreUsuario:
+        usuario.nombreUsuario !== undefined ? usuario.nombreUsuario : "",
+      apellidoUsuario:
+        usuario.apellidoUsuario !== undefined ? usuario.apellidoUsuario : "",
+      rut: usuario.rut !== undefined ? usuario.rut : "",
+      direccion: usuario.direccion !== undefined ? usuario.direccion : "",
+      ciudad: usuario.ciudad !== undefined ? usuario.ciudad : "",
+      comuna: usuario.comuna !== undefined ? usuario.comuna : "",
+      correo: usuario.correo !== undefined ? usuario.correo : "",
       rol: usuario.rol !== undefined ? usuario.rol : "",
       password: usuario.password !== undefined ? usuario.password : "",
-      admissionDate:
-        usuario.admissionDate !== undefined && usuario.admissionDate !== ""
-          ? new Date(usuario.admissionDate.toDate())
+      fechaCreacion:
+        usuario.fechaCreacion !== undefined && usuario.fechaCreacion !== ""
+          ? new Date(usuario.fechaCreacion.toDate())
           : "",
-      isenabled: usuario.isenabled !== undefined ? usuario.isenabled : "",
+      habilitado: usuario.habilitado !== undefined ? usuario.habilitado : "",
     },
     validationSchema: FormSchema,
     onSubmit: () => guardarDatos(),
   });
 
   const FormSchemaCredentials = Yup.object().shape({
-    email: Yup.string()
+    correo: Yup.string()
       .email("Correo no válido")
       .required("Se debe ingresar el correo"),
     password: Yup.string().required("Se debe ingresar una contraseña"),
@@ -132,7 +136,7 @@ export default function ModalFormulario(props) {
 
   const formikCredentials = useFormik({
     initialValues: {
-      email: "",
+      correo: "",
       password: "",
     },
     validationSchema: FormSchemaCredentials,
@@ -150,21 +154,21 @@ export default function ModalFormulario(props) {
   };
   const guardarDatosAdminPlanner = async () => {
     setLoadingCredenciales(true);
-    await createUserWithEmailAndPassword(auth, values.email, values.password)
+    await createUserWithEmailAndPassword(auth, values.correo, values.password)
       .then(async (e) => {
         const id = e.user.uid;
         const data = {
           ...values,
           uid: id,
           cuid: userData.rol === "company" ? userData.uid : userData.cuid,
-          run: formatRut(values.run, RutFormat.DOTS_DASH),
-          isenabled: true,
+          rut: formatRut(values.rut, RutFormat.DOTS_DASH),
+          habilitado: true,
         };
         delete data.password;
-        await setDoc(doc(db, "users", id), data)
+        await setDoc(doc(db, "usuarios", id), data)
           .then(() => {
             login(
-              formikCredentials.values.email,
+              formikCredentials.values.correo,
               formikCredentials.values.password
             )
               .then(() => {
@@ -192,14 +196,14 @@ export default function ModalFormulario(props) {
   const guardarCosechador = async () => {
     const data = {
       ...values,
-      uid: values.run,
+      uid: values.rut,
       cuid: userData.rol === "company" ? userData.uid : userData.cuid,
-      run: formatRut(values.run, RutFormat.DOTS_DASH),
-      isenabled: true,
+      rut: formatRut(values.rut, RutFormat.DOTS_DASH),
+      habilitado: true,
     };
     delete data.password;
-    delete data.email;
-    await setDoc(doc(db, "users", data.run), data)
+    delete data.correo;
+    await setDoc(doc(db, "usuarios", data.rut), data)
       .then(() => {
         setMessage("Se ha guardado correctamente en la base de datos");
         setColor("success");
@@ -217,8 +221,8 @@ export default function ModalFormulario(props) {
         setLoading(true);
         guardarCosechador();
       } else {
-        if (values.email === "")
-          return setFieldError("email", "Correo requerido");
+        if (values.correo === "")
+          return setFieldError("correo", "Correo requerido");
         if (values.password === "")
           return setFieldError("password", "Contraseña requerida");
         setCredenciales(true);

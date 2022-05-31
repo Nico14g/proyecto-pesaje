@@ -94,9 +94,9 @@ export default function FormularioEmpleado(props) {
                   >
                     <DatePicker
                       label="Fecha Ingreso"
-                      value={values.admissionDate}
+                      value={values.fechaCreacion}
                       onChange={(value) => {
-                        setFieldValue("admissionDate", value);
+                        setFieldValue("fechaCreacion", value);
                       }}
                       disabled={visualizar}
                       renderInput={(params) => {
@@ -105,13 +105,13 @@ export default function FormularioEmpleado(props) {
                             {...params}
                             className={classes.pos}
                             required
-                            id="admissionDate"
+                            id="fechaCreacion"
                             fullWidth
                             error={Boolean(
-                              touched.admissionDate && errors.admissionDate
+                              touched.fechaCreacion && errors.fechaCreacion
                             )}
                             helperText={
-                              touched.admissionDate && errors.admissionDate
+                              touched.fechaCreacion && errors.fechaCreacion
                             }
                           />
                         );
@@ -124,13 +124,15 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="firstName"
+                    id="nombreUsuario"
                     fullWidth
                     disabled={visualizar}
                     label="Nombre"
-                    {...getFieldProps("firstName")}
-                    error={Boolean(touched.firstName && errors.firstName)}
-                    helperText={touched.firstName && errors.firstName}
+                    {...getFieldProps("nombreUsuario")}
+                    error={Boolean(
+                      touched.nombreUsuario && errors.nombreUsuario
+                    )}
+                    helperText={touched.nombreUsuario && errors.nombreUsuario}
                   />
                 </Grid>
                 <Grid container item xs={6}>
@@ -138,13 +140,17 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="lastName"
+                    id="apellidoUsuario"
                     fullWidth
                     disabled={visualizar}
                     label="Apellidos"
-                    {...getFieldProps("lastName")}
-                    error={Boolean(touched.lastName && errors.lastName)}
-                    helperText={touched.lastName && errors.lastName}
+                    {...getFieldProps("apellidoUsuario")}
+                    error={Boolean(
+                      touched.apellidoUsuario && errors.apellidoUsuario
+                    )}
+                    helperText={
+                      touched.apellidoUsuario && errors.apellidoUsuario
+                    }
                   />
                 </Grid>
                 <Grid container item xs={6}>
@@ -152,13 +158,13 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="run"
+                    id="rut"
                     label="Rut"
                     fullWidth
                     disabled={visualizar}
-                    {...getFieldProps("run")}
-                    error={Boolean(touched.run && errors.run)}
-                    helperText={touched.run && errors.run}
+                    {...getFieldProps("rut")}
+                    error={Boolean(touched.rut && errors.rut)}
+                    helperText={touched.rut && errors.rut}
                   />
                 </Grid>
 
@@ -167,13 +173,13 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="address"
+                    id="direccion"
                     label="Dirección"
                     fullWidth
                     disabled={visualizar}
-                    {...getFieldProps("address")}
-                    error={Boolean(touched.address && errors.address)}
-                    helperText={touched.address && errors.address}
+                    {...getFieldProps("direccion")}
+                    error={Boolean(touched.direccion && errors.direccion)}
+                    helperText={touched.direccion && errors.direccion}
                   />
                 </Grid>
                 <Grid container item xs={6}>
@@ -181,13 +187,13 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="city"
+                    id="ciudad"
                     label="Ciudad"
                     fullWidth
                     disabled={visualizar}
-                    {...getFieldProps("city")}
-                    error={Boolean(touched.city && errors.city)}
-                    helperText={touched.city && errors.city}
+                    {...getFieldProps("ciudad")}
+                    error={Boolean(touched.ciudad && errors.ciudad)}
+                    helperText={touched.ciudad && errors.ciudad}
                   />
                 </Grid>
                 <Grid container item xs={6}>
@@ -195,13 +201,13 @@ export default function FormularioEmpleado(props) {
                     className={classes.pos}
                     required
                     margin="dense"
-                    id="state"
+                    id="comuna"
                     label="Comuna"
                     fullWidth
                     disabled={visualizar}
-                    {...getFieldProps("state")}
-                    error={Boolean(touched.state && errors.state)}
-                    helperText={touched.state && errors.state}
+                    {...getFieldProps("comuna")}
+                    error={Boolean(touched.comuna && errors.comuna)}
+                    helperText={touched.comuna && errors.comuna}
                   />
                 </Grid>
 
@@ -225,14 +231,14 @@ export default function FormularioEmpleado(props) {
                       <TextField
                         className={classes.pos}
                         margin="dense"
-                        id="email"
-                        label="Email"
+                        id="correo"
+                        label="Correo"
                         autoComplete="new-email"
                         fullWidth
                         disabled={visualizar}
-                        {...getFieldProps("email")}
-                        error={Boolean(touched.email && errors.email)}
-                        helperText={touched.email && errors.email}
+                        {...getFieldProps("correo")}
+                        error={Boolean(touched.correo && errors.correo)}
+                        helperText={touched.correo && errors.correo}
                       />
                     </Grid>
                     <Grid container item xs={6}>

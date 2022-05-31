@@ -71,15 +71,15 @@ export default function ModalCategoria(props) {
   const { userData } = useAuth();
 
   const FormSchema = Yup.object().shape({
-    name: Yup.string().required("Nombre requerido"),
+    nombreCategoria: Yup.string().required("Nombre requerido"),
 
-    dateStart: Yup.date().required("Fecha requerida").nullable(),
+    fechaInicio: Yup.date().required("Fecha requerida").nullable(),
   });
 
   const formik = useFormik({
     initialValues: {
-      name: "",
-      dateStart: new Date(),
+      nombreCategoria: "",
+      fechaInicio: new Date(),
     },
     validationSchema: FormSchema,
     onSubmit: () => guardarDatos(),
@@ -98,14 +98,14 @@ export default function ModalCategoria(props) {
     setLoading(true);
     const data = {
       ...values,
-      dateEnd: "",
+      fechaTermino: "",
       cuid: userData.rol === "company" ? userData.uid : userData.cuid,
-      id: values.name,
+      idCategoria: values.nombreCategoria,
     };
-    await addDoc(collection(db, "category"), data)
+    await addDoc(collection(db, "categoria"), data)
       .then(async (e) => {
-        const info = { ...data, id: e.id };
-        await setDoc(doc(db, "category", e.id), info)
+        const info = { ...data, idCategoria: e.id };
+        await setDoc(doc(db, "categoria", e.id), info)
           .then(() => {
             setMessage("Se ha guardado correctamente en la base de datos");
             setColor("success");

@@ -21,7 +21,7 @@ import SearchNotFound from "../SearchNotFound";
 import useAuth from "../../Auth/Auth";
 
 const TABLE_HEAD = [
-  { id: "run", label: "RUT", alignRight: false },
+  { id: "rut", label: "RUT", alignRight: false },
   { id: "peso", label: "Peso", alignRight: false },
   { id: "fecha", label: "Fecha", alignRight: false },
 ];
@@ -58,8 +58,8 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(array, (_user) => {
       return (
-        _user.weight.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        _user.date
+        _user.peso.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        _user.fecha
           .toDate()
           .toLocaleDateString("es-CL", options)
           .toLowerCase()
@@ -72,7 +72,6 @@ function applySortFilter(array, comparator, query) {
 
 export default function TablaHistorial(props) {
   const { id, registros } = props;
-  console.log(registros);
   const [locale] = useState("esES");
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
@@ -163,12 +162,10 @@ export default function TablaHistorial(props) {
               {filteredUsers
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
-                  console.log(row);
-
                   return (
                     <TableRow
                       hover
-                      key={row.date.toDate()}
+                      key={row.fecha.toDate()}
                       tabIndex={-1}
                       role="checkbox"
                     >
@@ -176,9 +173,11 @@ export default function TablaHistorial(props) {
                         <Typography variant="subtitle2">{id}</Typography>
                       </TableCell>
 
-                      <TableCell align="left">{row.weight + " KG"}</TableCell>
+                      <TableCell align="left">{row.peso + " KG"}</TableCell>
                       <TableCell align="left">
-                        {row.date.toDate().toLocaleDateString("es-CL", options)}
+                        {row.fecha
+                          .toDate()
+                          .toLocaleDateString("es-CL", options)}
                       </TableCell>
                     </TableRow>
                   );

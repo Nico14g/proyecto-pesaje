@@ -21,23 +21,23 @@ export function AuthProvider({ children }) {
 
   const value = { user, userData, login, logout, resetPassword };
 
-  function login(email, password) {
-    return signInWithEmailAndPassword(auth, email, password);
+  function login(correo, password) {
+    return signInWithEmailAndPassword(auth, correo, password);
   }
 
   async function logout() {
     return signOut(auth).then(() => setUserData(null));
   }
 
-  function resetPassword(email) {
-    return sendPasswordResetEmail(auth, email);
+  function resetPassword(correo) {
+    return sendPasswordResetEmail(auth, correo);
   }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       if (user) {
-        onSnapshot(doc(db, "users", user.uid), (doc) =>
+        onSnapshot(doc(db, "usuarios", user.uid), (doc) =>
           setUserData(doc.data())
         );
       }

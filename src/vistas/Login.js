@@ -41,7 +41,7 @@ const useStyles = makeStyles({
  * @returns retorna y renderiza los elementos visualizados en la sección del login de la página.
  */
 function Login() {
-  const [email, setEmail] = useState("");
+  const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -52,7 +52,7 @@ function Login() {
   function handleOnSubmit(e) {
     setLoading(true);
     setError(false);
-    login(email, password)
+    login(correo, password)
       .then(
         () => setLoading(false) && navigate("/dashboard/", { replace: true })
       )
@@ -118,8 +118,8 @@ function Login() {
                           <TextField
                             id="text-input-email"
                             label="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={correo}
+                            onChange={(e) => setCorreo(e.target.value)}
                             required
                             type="email"
                             variant="outlined"

@@ -40,11 +40,13 @@ export default function Bandejas() {
 
   useEffect(() => {
     const cuid = userData.rol === "bandeja" ? userData.uid : userData.cuid;
+    console.log(cuid);
     const q = query(collection(db, "bandeja"), where("cuid", "==", cuid));
     onSnapshot(q, (querySnapshot) => {
       let bandejas = [];
       querySnapshot.forEach((doc) => {
-        if (doc.data().run !== userData.run) {
+        console.log(doc.data());
+        if (doc.data().rut !== userData.rut) {
           bandejas.push(doc.data());
         }
       });
@@ -52,7 +54,7 @@ export default function Bandejas() {
         setBandejas(bandejas);
       }
     });
-  }, [userData.uid, userData.cuid, userData.rol, userData.run]);
+  }, [userData.uid, userData.cuid, userData.rol, userData.rut]);
 
   useEffect(() => {
     return () => {

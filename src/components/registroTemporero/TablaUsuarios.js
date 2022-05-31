@@ -28,7 +28,7 @@ import SearchNotFound from "../SearchNotFound";
 import ModalFormulario from "./ModalFormulario";
 
 const TABLE_HEAD = [
-  { id: "run", label: "Rut", alignRight: false },
+  { id: "rut", label: "Rut", alignRight: false },
   { id: "nombreUsuario", label: "Nombre", alignRight: false },
   { id: "rol", label: "Rol", alignRight: false },
   { id: "acciones", label: "Acciones", alignRight: false },
@@ -59,9 +59,10 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(array, (_user) => {
       return (
-        _user.run.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        _user.firstName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        _user.lastName.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        _user.rut.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        _user.nombreUsuario.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        _user.apellidoUsuario.toLowerCase().indexOf(query.toLowerCase()) !==
+          -1 ||
         _user.rol.toLowerCase().indexOf(query.toLowerCase()) !== -1
       );
     });
@@ -85,17 +86,17 @@ export default function TablaUsuarios(props) {
   const [message, setMessage] = useState("");
   const [color, setColor] = useState("success");
   const [usuario, setUsuario] = useState({
-    firstName: "",
-    lastName: "",
-    run: "",
-    address: "",
-    city: "",
-    state: "",
-    email: "",
+    nombreUsuario: "",
+    apellidoUsuario: "",
+    rut: "",
+    direccion: "",
+    ciudad: "",
+    comuna: "",
+    correo: "",
     rol: "",
     password: "",
-    admissionDate: "",
-    isenabled: "",
+    fechaCreacion: "",
+    habilitado: "",
   });
 
   const handleRequestSort = (event, property) => {
@@ -152,16 +153,16 @@ export default function TablaUsuarios(props) {
 
   const handleAgregar = () => {
     setUsuario({
-      firstName: "",
-      lastName: "",
-      run: "",
-      address: "",
-      city: "",
-      state: "",
-      email: "",
+      nombreUsuario: "",
+      apellidoUsuario: "",
+      rut: "",
+      direccion: "",
+      ciudad: "",
+      comuna: "",
+      correo: "",
       rol: "",
       password: "",
-      admissionDate: "",
+      fechaCreacion: "",
     });
     setVisualizar(false);
     setOpen(true);
@@ -223,14 +224,14 @@ export default function TablaUsuarios(props) {
                 {filteredUsers
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => {
-                    const { run, firstName, lastName, rol } = row;
+                    const { rut, nombreUsuario, apellidoUsuario, rol } = row;
                     return (
-                      <TableRow hover key={run} tabIndex={-1} role="checkbox">
+                      <TableRow hover key={rut} tabIndex={-1} role="checkbox">
                         <TableCell align="left">
-                          <Typography variant="subtitle2">{run}</Typography>
+                          <Typography variant="subtitle2">{rut}</Typography>
                         </TableCell>
                         <TableCell align="left">
-                          {firstName} {lastName}
+                          {nombreUsuario} {apellidoUsuario}
                         </TableCell>
                         <TableCell align="left">{mostrarRol(rol)}</TableCell>
                         <TableCell align="left">
@@ -238,7 +239,7 @@ export default function TablaUsuarios(props) {
                           <IconButton
                             onClick={() =>
                               handleVisualizar(
-                                filteredUsers.find((user) => user.run === run)
+                                filteredUsers.find((user) => user.rut === rut)
                               )
                             }
                             edge="end"

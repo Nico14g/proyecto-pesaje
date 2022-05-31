@@ -47,36 +47,38 @@ export default function Reportes() {
 
   useEffect(() => {
     const cuid = userData.rol === "company" ? userData.uid : userData.cuid;
-    const q = query(collection(db, "category"), where("cuid", "==", cuid));
+    const q = query(collection(db, "categoria"), where("cuid", "==", cuid));
 
     onSnapshot(q, (querySnapshot) => {
       let categorias = [];
 
       querySnapshot.forEach((doc) => {
-        let registers = [];
+        let registros = [];
 
-        onSnapshot(collection(doc.ref, "registers"), (querySnapshot2) => {
+        onSnapshot(collection(doc.ref, "registros"), (querySnapshot2) => {
           querySnapshot2.forEach((doc2) => {
-            let workerRegisters = [];
+            let registrosTemporero = [];
 
             onSnapshot(
-              collection(doc2.ref, "workerRegisters"),
+              collection(doc2.ref, "registrosTemporero"),
               (querySnapshot3) => {
                 querySnapshot3.forEach((doc3) => {
-                  workerRegisters.push(doc3.data());
+                  registrosTemporero.push(doc3.data());
                 });
-                registers.push(Object.assign(doc2.data(), { workerRegisters }));
+                registros.push(
+                  Object.assign(doc2.data(), { registrosTemporero })
+                );
               }
             );
           });
         });
-        categorias.push(Object.assign(doc.data(), { registers }));
+        categorias.push(Object.assign(doc.data(), { registros }));
       });
       if (isMounted.current) {
         setCategorias(categorias);
       }
     });
-  }, [userData.uid, userData.cuid, userData.rol, userData.run]);
+  }, [userData.uid, userData.cuid, userData.rol, userData.rut]);
 
   return (
     <div className={classes.div}>

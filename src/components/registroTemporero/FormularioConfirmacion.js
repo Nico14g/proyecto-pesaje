@@ -47,12 +47,12 @@ export default function FormularioConfirmacion(props) {
                   <TextField
                     className={classes.pos}
                     margin="dense"
-                    id="email"
-                    label="Email"
+                    id="correo"
+                    label="Correo"
                     fullWidth
-                    {...getFieldProps("email")}
-                    error={Boolean(touched.email && errors.email)}
-                    helperText={touched.email && errors.email}
+                    {...getFieldProps("correo")}
+                    error={Boolean(touched.correo && errors.correo)}
+                    helperText={touched.correo && errors.correo}
                   />
                 </Grid>
                 <Grid container item xs={6}>

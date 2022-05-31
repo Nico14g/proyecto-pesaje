@@ -52,7 +52,7 @@ export default function Dashboard() {
   const open = useStore((state) => state.open);
   const [categorias, setCategorias] = useState([]);
   const [registros, setRegistros] = useState([]);
-  const [workerRegisters, setWorkerRegisters] = useState([]);
+  const [registrosTemporero, setRegistrosTemporero] = useState([]);
   const [cantidadCategorias, setCantidadCategorias] = useState([]);
   const [mayorCategoria, setMayorCategoria] = useState([]);
   const [menorCategoria, setMenorCategoria] = useState([]);
@@ -62,7 +62,12 @@ export default function Dashboard() {
   const [isLoadingMayor, setIsLoadingMayor] = useState(true);
   const [pastelChart, setPastelChart] = useState({ serie: [], labels: [""] });
   const [lineaChart, setLineaChart] = useState({ serie: [], labels: [""] });
+
   const [lineaChartTemp, setLineaChartTemp] = useState({
+    serie: [],
+    labels: [""],
+  });
+  const [lineaChartMejorTemp, setLineaChartMejorTemp] = useState({
     serie: [],
     labels: [""],
   });
@@ -86,28 +91,29 @@ export default function Dashboard() {
   const { userData } = useAuth();
   const classes = styles(open);
   const isMounted = useRef(true);
+  const [cambioCategoria, setCambioCategoria] = useState(true);
 
   const obtenerCategoria = (categories, tipo) => {
-    let registers = [];
+    let registros = [];
 
-    categories.map((category) =>
-      registers.push(
-        category.registers.reduce(
-          (partialSum, a) => partialSum + a.acumulate,
+    categories.map((categoria) =>
+      registros.push(
+        categoria.registros.reduce(
+          (partialSum, a) => partialSum + a.acumulado,
           0
         )
       )
     );
     let i;
     if (tipo === "max") {
-      i = registers.indexOf(Math.max(...registers));
+      i = registros.indexOf(Math.max(...registros));
     } else {
-      i = registers.indexOf(Math.min(...registers));
+      i = registros.indexOf(Math.min(...registros));
     }
 
     const categoria = {
       ...categories[i],
-      data: categories[i].registers.map((register) => register.acumulate),
+      data: categories[i].registros.map((register) => register.acumulado),
     };
     setIsLoadingMayor(false);
     if (tipo === "max") {
@@ -125,33 +131,33 @@ export default function Dashboard() {
 
   useEffect(() => {
     const cuid = userData.rol === "company" ? userData.uid : userData.cuid;
-    const q = query(collection(db, "category"), where("cuid", "==", cuid));
+    const q = query(collection(db, "categoria"), where("cuid", "==", cuid));
     let categorias = [];
     let registros = [];
     onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((doc) => {
         let registers = [];
 
-        onSnapshot(collection(doc.ref, "registers"), (querySnapshot2) => {
+        onSnapshot(collection(doc.ref, "registros"), (querySnapshot2) => {
           querySnapshot2.forEach((doc2) => {
-            let workerRegisters = [];
+            let registrosTemporero = [];
 
             onSnapshot(
-              collection(doc2.ref, "workerRegisters"),
+              collection(doc2.ref, "registrosTemporero"),
               (querySnapshot3) => {
                 querySnapshot3.forEach((doc3) => {
-                  workerRegisters.push(doc3.data());
+                  registrosTemporero.push(doc3.data());
                 });
                 registers.push({
                   ...doc2.data(),
-                  workerRegisters: workerRegisters,
+                  registrosTemporero: registrosTemporero,
                 });
-                setWorkerRegisters((a) => [...a, workerRegisters]);
+                setRegistrosTemporero((a) => [...a, registrosTemporero]);
               }
             );
           });
         });
-        categorias.push({ ...doc.data(), registers: registers });
+        categorias.push({ ...doc.data(), registros: registers });
         registros.push(registers);
       });
 
@@ -165,14 +171,14 @@ export default function Dashboard() {
         }
       }
     });
-  }, [userData.uid, userData.cuid, userData.rol, userData.run]);
+  }, [userData.uid, userData.cuid, userData.rol, userData.rut]);
 
   useEffect(() => {
     if (categorias.length > 0 && registros.length > 0) {
       obtenerCategoria(categorias, "max");
       obtenerCategoria(categorias, "min");
     }
-  }, [categorias, registros, workerRegisters]);
+  }, [categorias, registros, registrosTemporero]);
 
   useEffect(() => {
     function getDatesInRange(startDate, endDate) {
@@ -190,13 +196,17 @@ export default function Dashboard() {
 
     const graficoPastel = () => {
       let data = { serie: [], labels: [] };
-      data.serie = selectedCategoria.registers.map(
-        (register) => register.acumulate
+      data.serie = selectedCategoria.registros.map(
+        (register) => register.acumulado
       );
 
-      data.labels = selectedCategoria.registers.map(
+      data.labels = selectedCategoria.registros.map(
         (register) =>
-          register.firstName + " " + register.lastName + "-" + register.id
+          register.nombreTemporero +
+          " " +
+          register.apellidoTemporero +
+          "-" +
+          register.idRegistro
       );
       setPastelChart(data);
     };
@@ -204,8 +214,8 @@ export default function Dashboard() {
     const graficoLineal = () => {
       let totalRegisters = [];
 
-      let workerRegister = selectedCategoria.registers.map((registro) =>
-        registro.workerRegisters.map((wr) => wr)
+      let workerRegister = selectedCategoria.registros.map((registro) =>
+        registro.registrosTemporero.map((wr) => wr)
       );
       workerRegister.map((workerRegister) =>
         workerRegister.map((register) => totalRegisters.push(register))
@@ -222,11 +232,11 @@ export default function Dashboard() {
         for (let i = 0; i < totalRegisters.length; i++) {
           const element = totalRegisters[i];
           if (
-            element.date.toDate().getFullYear() === date.getFullYear() &&
-            element.date.toDate().getMonth() === date.getMonth() &&
-            element.date.toDate().getDate() === date.getDate()
+            element.fecha.toDate().getFullYear() === date.getFullYear() &&
+            element.fecha.toDate().getMonth() === date.getMonth() &&
+            element.fecha.toDate().getDate() === date.getDate()
           ) {
-            serie[index] = serie[index] + parseFloat(element.weight);
+            serie[index] = serie[index] + parseFloat(element.peso);
             totalRegisters.splice(i, 1);
             i--;
           }
@@ -238,16 +248,7 @@ export default function Dashboard() {
       setLineaChart(data);
     };
 
-    const graficoLinealTemporero = () => {
-      let workerRegister = [];
-      if (selectedTemporero !== null) {
-        workerRegister = selectedTemporero.workerRegisters.map((wr) => wr);
-      } else {
-        workerRegister = selectedCategoria.registers[0].workerRegisters.map(
-          (wr) => wr
-        );
-      }
-
+    const generarSerieLineal = (workerRegister) => {
       let dateRange = getDatesInRange(
         filterDateTemp[0].startDate,
         filterDateTemp[0].endDate
@@ -259,11 +260,11 @@ export default function Dashboard() {
         for (let i = 0; i < workerRegister.length; i++) {
           const element = workerRegister[i];
           if (
-            element.date.toDate().getFullYear() === date.getFullYear() &&
-            element.date.toDate().getMonth() === date.getMonth() &&
-            element.date.toDate().getDate() === date.getDate()
+            element.fecha.toDate().getFullYear() === date.getFullYear() &&
+            element.fecha.toDate().getMonth() === date.getMonth() &&
+            element.fecha.toDate().getDate() === date.getDate()
           ) {
-            serie[index] = serie[index] + parseFloat(element.weight);
+            serie[index] = serie[index] + parseFloat(element.peso);
             workerRegister.splice(i, 1);
             i--;
           }
@@ -271,15 +272,50 @@ export default function Dashboard() {
         return null;
       });
       let range = dateRange.map((date) => date.getDate());
-      let data = { serie: serie, labels: range };
+      return { serie: serie, labels: range };
+    };
+    const graficoLinealMejorTemporero = () => {
+      let workerRegisters = [];
+      let pesos = [];
+      console.log(selectedCategoria, "asd");
+      selectedCategoria.registros.map((registro) => {
+        let sumaPeso = 0;
+        workerRegisters.push({
+          workerRegister: registro.registrosTemporero.map((wr) => wr),
+        });
+        registro.registrosTemporero.map(
+          (wr) => (sumaPeso = sumaPeso + wr.peso)
+        );
+        pesos.push(sumaPeso);
+        return null;
+      });
+      let wr = workerRegisters[pesos.indexOf(Math.max(...pesos))];
+      console.log(wr.workerRegister);
+      let data = generarSerieLineal(wr.workerRegister);
+      setLineaChartMejorTemp(data);
+    };
+    const graficoLinealTemporero = () => {
+      let workerRegister = [];
+      if (selectedTemporero !== null) {
+        workerRegister = selectedTemporero.registrosTemporero.map((wr) => wr);
+      } else {
+        workerRegister = selectedCategoria.registros[0].registrosTemporero.map(
+          (wr) => wr
+        );
+      }
+
+      let data = generarSerieLineal(workerRegister);
       setLineaChartTemp(data);
     };
 
     if (selectedCategoria !== null) {
       graficoPastel();
       graficoLineal();
-      if (selectedCategoria.registers.length > 0) {
-        setSelectedTemporero(selectedCategoria.registers[0]);
+      if (selectedCategoria.registros.length > 0) {
+        if (cambioCategoria) {
+          setSelectedTemporero(selectedCategoria.registros[0]);
+        }
+        graficoLinealMejorTemporero();
         graficoLinealTemporero();
       }
     }
@@ -287,7 +323,7 @@ export default function Dashboard() {
     selectedCategoria,
     selectedTemporero,
     registros,
-    workerRegisters,
+    registrosTemporero,
     filterDate,
     filterDateTemp,
   ]);
@@ -312,9 +348,38 @@ export default function Dashboard() {
           opacity: 0.2,
         },
         toolbar: {
-          show: false,
+          show: true,
+
+          tools: {
+            download: true,
+            zoom: false,
+            zoomin: true,
+            zoomout: true,
+            selection: true,
+            pan: false,
+            reset: false,
+          },
+          export: {
+            csv: {
+              filename: "Cosecha_Por_Día",
+              columnDelimiter: ",",
+              headerCategory: "Día",
+              headerValue: "value",
+              dateFormatter(timestamp) {
+                return new Date(timestamp).toDateString();
+              },
+            },
+            svg: {
+              filename: "Cosecha_Por_Día",
+            },
+            png: {
+              filename: "Cosecha_Por_Día",
+            },
+          },
+          autoSelected: "zoom",
         },
       },
+
       colors: ["#19A84C"],
       dataLabels: {
         enabled: false,
@@ -362,8 +427,12 @@ export default function Dashboard() {
   const lineChartTemp = {
     series: [
       {
-        name: "Cosecha",
+        name: "Temporero seleccionado",
         data: lineaChartTemp.serie,
+      },
+      {
+        name: "Mejor temporero",
+        data: lineaChartMejorTemp.serie,
       },
     ],
     options: {
@@ -379,10 +448,38 @@ export default function Dashboard() {
           opacity: 0.2,
         },
         toolbar: {
-          show: false,
+          show: true,
+
+          tools: {
+            download: true,
+            zoom: false,
+            zoomin: true,
+            zoomout: true,
+            selection: true,
+            pan: false,
+            reset: false,
+          },
+          export: {
+            csv: {
+              filename: "Desempeño_Temporero",
+              columnDelimiter: ",",
+              headerCategory: "Día",
+              headerValue: "value",
+              dateFormatter(timestamp) {
+                return new Date(timestamp).toDateString();
+              },
+            },
+            svg: {
+              filename: "Desempeño_Temporero",
+            },
+            png: {
+              filename: "Desempeño_Temporero",
+            },
+          },
+          autoSelected: "zoom",
         },
       },
-      colors: ["#19A84C"],
+      colors: ["#19A84C", "#26A0FC"],
       dataLabels: {
         enabled: false,
       },
@@ -414,7 +511,11 @@ export default function Dashboard() {
           text: "Cantidad (KG)",
         },
         min: 0,
-        max: Math.max(...lineaChartTemp.serie) + 3,
+        max:
+          Math.max(...lineaChartMejorTemp.serie) >
+          Math.max(...lineaChartTemp.serie)
+            ? Math.max(...lineaChartMejorTemp.serie) + 3
+            : Math.max(...lineaChartTemp.serie) + 3,
       },
       legend: {
         position: "top",
@@ -504,21 +605,23 @@ export default function Dashboard() {
                     options={categorias}
                     value={selectedCategoria}
                     isOptionEqualToValue={(option, value) =>
-                      option.id === value.id
+                      option.idCategoria === value.idCategoria
                     }
-                    getOptionLabel={(option) => option.name}
+                    getOptionLabel={(option) => option.nombreCategoria}
                     style={{ marginTop: 30, marginBottom: 30 }}
                     onChange={(event, newValue) => {
                       if (newValue !== null) {
+                        setCambioCategoria(true);
                         setSelectedCategoria(newValue);
-                        if (newValue.registers.length > 0) {
-                          setSelectedTemporero(newValue.registers[0]);
+
+                        if (newValue.registros.length > 0) {
+                          setSelectedTemporero(newValue.registros[0]);
                         } else {
                           setSelectedTemporero({
-                            firstName: "",
-                            lastName: "",
-                            id: "",
-                            workerRegisters: [],
+                            nombreTemporero: "",
+                            apellidoTemporero: "",
+                            idRegistro: "",
+                            registrosTemporero: [],
                           });
                         }
                       }
@@ -706,17 +809,18 @@ export default function Dashboard() {
                 <Grid item xs={3}>
                   <Autocomplete
                     id="controlled-demo"
-                    options={selectedCategoria.registers}
+                    options={selectedCategoria.registros}
                     value={selectedTemporero}
                     isOptionEqualToValue={(option, value) =>
-                      option.id === value.id
+                      option.idRegistro === value.idRegistro
                     }
                     getOptionLabel={(option) =>
-                      option.firstName + " " + option.lastName
+                      option.nombreTemporero + " " + option.apellidoTemporero
                     }
                     style={{ marginTop: 30, marginBottom: 30 }}
                     onChange={(event, newValue) => {
                       if (newValue !== null) {
+                        setCambioCategoria(false);
                         setSelectedTemporero(newValue);
                       }
                     }}
@@ -754,13 +858,15 @@ export default function Dashboard() {
                         marginBottom: 20,
                       }}
                     >
-                      {selectedTemporero !== null && (
+                      {selectedTemporero !== null ? (
                         <TablaHistorial
-                          id={selectedTemporero.id}
-                          registros={selectedTemporero.workerRegisters.sort(
-                            (a, b) => b.date.toDate() - a.date.toDate()
+                          id={selectedTemporero.idRegistro}
+                          registros={selectedTemporero.registrosTemporero.sort(
+                            (a, b) => b.fecha.toDate() - a.fecha.toDate()
                           )}
                         />
+                      ) : (
+                        <TablaHistorial id={0} registros={[]} />
                       )}
                     </Box>
                   </Card>
