@@ -24,6 +24,7 @@ const TABLE_HEAD = [
   { id: "rut", label: "RUT", alignRight: false },
   { id: "peso", label: "Peso", alignRight: false },
   { id: "fecha", label: "Fecha", alignRight: false },
+  { id: "bluetooth", label: "Bluetooth", alignRight: false },
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -173,11 +174,16 @@ export default function TablaHistorial(props) {
                         <Typography variant="subtitle2">{id}</Typography>
                       </TableCell>
 
-                      <TableCell align="left">{row.peso + " KG"}</TableCell>
+                      <TableCell align="left">
+                        {Number(parseFloat(row.peso).toFixed(1)) + " KG"}
+                      </TableCell>
                       <TableCell align="left">
                         {row.fecha
                           .toDate()
                           .toLocaleDateString("es-CL", options)}
+                      </TableCell>
+                      <TableCell align="left">
+                        {row.bluetooth ? "Sí" : "No"}
                       </TableCell>
                     </TableRow>
                   );
