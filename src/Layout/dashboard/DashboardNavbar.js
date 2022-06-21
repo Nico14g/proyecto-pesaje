@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 // material
+import { Icon } from "@iconify/react";
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { styled, alpha } from "@mui/material/styles";
@@ -11,6 +12,7 @@ import {
   Box,
   Divider,
   Button,
+  MenuItem,
 } from "@mui/material";
 
 import MenuPopover from "./MenuPopover";
@@ -20,6 +22,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import sidebarConfig from "./SidebarConfig";
 import useAuth from "../../Auth/Auth";
 import PopupState, { bindTrigger, bindPopover } from "material-ui-popup-state";
+import settings2Fill from "@iconify/icons-eva/settings-2-fill";
+import ConfigurarCuenta from "./ConfigurarCuenta";
 
 const drawerWidth = 240;
 
@@ -32,7 +36,16 @@ export default function DashboardNavbar({ open, setOpen }) {
   const { userData, logout } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [openCuenta, setOpenCuenta] = useState(false);
   const divRef = useRef();
+
+  const MENU_OPTIONS = [
+    {
+      label: "Cuenta",
+      icon: settings2Fill,
+      linkTo: "#",
+    },
+  ];
 
   useEffect(() => {
     setAnchorEl(divRef.current);
@@ -121,7 +134,25 @@ export default function DashboardNavbar({ open, setOpen }) {
                 </Box>
 
                 <Divider sx={{ my: 1 }} />
+                {MENU_OPTIONS.map((option) => (
+                  <MenuItem
+                    key={option.label}
+                    onClick={() => setOpenCuenta(true)}
+                    sx={{ typography: "body2", py: 1, px: 2.5 }}
+                  >
+                    <Box
+                      component={Icon}
+                      icon={option.icon}
+                      sx={{
+                        mr: 2,
+                        width: 24,
+                        height: 24,
+                      }}
+                    />
 
+                    {option.label}
+                  </MenuItem>
+                ))}
                 <Box sx={{ p: 2, pt: 1.5 }}>
                   <Button
                     color="inherit"
@@ -135,6 +166,9 @@ export default function DashboardNavbar({ open, setOpen }) {
                   </Button>
                 </Box>
               </MenuPopover>
+              {openCuenta && (
+                <ConfigurarCuenta open={openCuenta} setOpen={setOpenCuenta} />
+              )}
             </div>
           )}
         </PopupState>

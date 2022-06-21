@@ -277,7 +277,7 @@ export default function Dashboard() {
     const graficoLinealMejorTemporero = () => {
       let workerRegisters = [];
       let pesos = [];
-      console.log(selectedCategoria, "asd");
+      //console.log(selectedCategoria, "asd");
       selectedCategoria.registros.map((registro) => {
         let sumaPeso = 0;
         workerRegisters.push({
@@ -290,7 +290,7 @@ export default function Dashboard() {
         return null;
       });
       let wr = workerRegisters[pesos.indexOf(Math.max(...pesos))];
-      console.log(wr.workerRegister);
+      //console.log(wr.workerRegister);
       let data = generarSerieLineal(wr.workerRegister);
       setLineaChartMejorTemp(data);
     };

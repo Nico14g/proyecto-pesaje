@@ -7,7 +7,10 @@ import {
   signOut,
   sendPasswordResetEmail,
   onAuthStateChanged,
+  reauthenticateWithCredential,
+  updatePassword,
 } from "firebase/auth";
+
 const AuthContext = React.createContext();
 
 export function useAuth() {
@@ -19,7 +22,14 @@ export function AuthProvider({ children }) {
   const [userData, setUserData] = useState();
   const [loaded, setLoaded] = useState(false);
 
-  const value = { user, userData, login, logout, resetPassword };
+  const value = {
+    user,
+    userData,
+    login,
+    logout,
+    resetPassword,
+    updatePasswordUser,
+  };
 
   function login(correo, password) {
     return signInWithEmailAndPassword(auth, correo, password);
@@ -31,6 +41,16 @@ export function AuthProvider({ children }) {
 
   function resetPassword(correo) {
     return sendPasswordResetEmail(auth, correo);
+  }
+
+  function updatePasswordUser(newPassword) {
+    return updatePassword(auth.currentUser, newPassword)
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
   }
 
   useEffect(() => {

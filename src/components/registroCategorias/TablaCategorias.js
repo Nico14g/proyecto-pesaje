@@ -22,7 +22,8 @@ import {
   Container,
   Button,
   Paper,
-  IconButton,
+  FormControlLabel,
+  Switch,
   Divider,
 } from "@mui/material";
 import { TablaHead, TablaToolbar } from "../tablas";
@@ -30,11 +31,13 @@ import Scrollbar from "../Scrollbar";
 import SearchNotFound from "../SearchNotFound";
 import ModalCategoria from "./ModalCategoria";
 import useAuth from "../../Auth/Auth";
+import GestionCategoria from "./GestionCategoria";
 
 const TABLE_HEAD = [
   { id: "name", label: "Nombre Categoría", alignRight: false },
   { id: "startDate", label: "Fecha Inicio", alignRight: false },
   { id: "endDate", label: "Fecha Término", alignRight: false },
+  { id: "openClose", label: "Abrir/Cerrar", alignRight: false },
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -84,6 +87,8 @@ export default function TablaCategorias(props) {
   const [message, setMessage] = useState("");
   const [color, setColor] = useState("success");
   const { userData } = useAuth();
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedCategoria, setSelectedCategoria] = useState();
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -145,6 +150,11 @@ export default function TablaCategorias(props) {
   const mostrarFechaTermino = (fechaTermino) => {
     if (fechaTermino === "") return true;
     return fechaTermino.toDate().toLocaleDateString("es-CL", options);
+  };
+
+  const handleChange = (categoria) => {
+    setSelectedCategoria(categoria);
+    setOpenDialog(true);
   };
   return (
     <Paper>
@@ -232,6 +242,28 @@ export default function TablaCategorias(props) {
                             mostrarFechaTermino(fechaTermino)
                           )}
                         </TableCell>
+                        <TableCell align="left">
+                          <FormControlLabel
+                            value="bottom"
+                            control={
+                              <Switch
+                                checked={
+                                  mostrarFechaTermino(fechaTermino) === true
+                                    ? true
+                                    : false
+                                }
+                                onChange={() => handleChange(row)}
+                                inputProps={{ "aria-label": "controlled" }}
+                              />
+                            }
+                            label={
+                              mostrarFechaTermino(fechaTermino) === true
+                                ? "Cerrar"
+                                : "Reabrir"
+                            }
+                            labelPlacement="bottom"
+                          />
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -280,6 +312,16 @@ export default function TablaCategorias(props) {
           setShowAlert={setShowAlert}
           setMessage={setMessage}
           setColor={setColor}
+        />
+      )}
+      {openDialog && (
+        <GestionCategoria
+          open={openDialog}
+          setOpen={setOpenDialog}
+          selectedCategoria={selectedCategoria}
+          setMessage={setMessage}
+          setColor={setColor}
+          setShowAlert={setShowAlert}
         />
       )}
       {showAlert && (
