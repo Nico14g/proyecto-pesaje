@@ -85,10 +85,10 @@ export default function ConfigurarCuenta(props) {
     initialValues: {
       rut: userData.rut,
       nombre: userData.nombreUsuario,
-      apellidos: userData.apellidoUsuario,
-      ciudad: userData.ciudad,
-      comuna: userData.comuna,
-      direccion: userData.direccion,
+      apellidos: userData.rol === "company" ? "a" : userData.apellidoUsuario,
+      ciudad: userData.rol === "company" ? "a" : userData.ciudad,
+      comuna: userData.rol === "company" ? "a" : userData.comuna,
+      direccion: userData.rol === "company" ? "a" : userData.direccion,
       nuevaContrasena: "",
       confirmarNuevaContrasena: "",
       remember: true,
@@ -103,13 +103,18 @@ export default function ConfigurarCuenta(props) {
 
   const guardarDatos = async () => {
     setLoading(true);
-    const usuario = {
-      nombreUsuario: values.nombre,
-      apellidoUsuario: values.apellidos,
-      ciudad: values.ciudad,
-      comuna: values.comuna,
-      direccion: values.direccion,
-    };
+    let usuario;
+    if (userData.rol !== "company") {
+      usuario = {
+        nombreUsuario: values.nombre,
+        apellidoUsuario: values.apellidos,
+        ciudad: values.ciudad,
+        comuna: values.comuna,
+        direccion: values.direccion,
+      };
+    } else {
+      usuario = { nombreUsuario: values.nombre };
+    }
 
     await updateDoc(doc(db, "usuarios", userData.uid), usuario)
       .then(() => {
@@ -168,66 +173,80 @@ export default function ConfigurarCuenta(props) {
                   helperText={touched.rut && errors.rut}
                 />
 
-                <Grid container spacing={2}>
-                  <Grid container item xs={6}>
-                    <TextField
-                      required
-                      margin="dense"
-                      id="nombre"
-                      label="Nombre"
-                      fullWidth
-                      {...getFieldProps("nombre")}
-                      error={Boolean(touched.nombre && errors.nombre)}
-                      helperText={touched.nombre && errors.nombre}
-                    />
-                  </Grid>
-                  <Grid container item xs={6}>
-                    <TextField
-                      required
-                      margin="dense"
-                      id="apellidos"
-                      label="Apellidos"
-                      fullWidth
-                      {...getFieldProps("apellidos")}
-                      error={Boolean(touched.apellidos && errors.apellidos)}
-                      helperText={touched.apellidos && errors.apellidos}
-                    />
-                  </Grid>
-                  <Grid container item xs={6}>
-                    <TextField
-                      required
-                      margin="dense"
-                      id="ciudad"
-                      label="Ciudad"
-                      fullWidth
-                      {...getFieldProps("ciudad")}
-                      error={Boolean(touched.ciudad && errors.ciudad)}
-                      helperText={touched.ciudad && errors.ciudad}
-                    />
-                  </Grid>
-                  <Grid container item xs={6}>
-                    <TextField
-                      required
-                      margin="dense"
-                      id="comuna"
-                      label="Comuna"
-                      fullWidth
-                      {...getFieldProps("comuna")}
-                      error={Boolean(touched.comuna && errors.comuna)}
-                      helperText={touched.comuna && errors.comuna}
-                    />
-                  </Grid>
-                </Grid>
                 <TextField
                   required
                   margin="dense"
-                  id="direccion"
-                  label="Dirección"
+                  id="nombre"
+                  label="Nombre"
                   fullWidth
-                  {...getFieldProps("direccion")}
-                  error={Boolean(touched.direccion && errors.direccion)}
-                  helperText={touched.direccion && errors.direccion}
+                  {...getFieldProps("nombre")}
+                  error={Boolean(touched.nombre && errors.nombre)}
+                  helperText={touched.nombre && errors.nombre}
                 />
+                {userData.rol !== "company" && (
+                  <>
+                    <Grid container spacing={2}>
+                      <Grid container item xs={6}>
+                        <TextField
+                          required
+                          margin="dense"
+                          id="nombre"
+                          label="Nombre"
+                          fullWidth
+                          {...getFieldProps("nombre")}
+                          error={Boolean(touched.nombre && errors.nombre)}
+                          helperText={touched.nombre && errors.nombre}
+                        />
+                      </Grid>
+                      <Grid container item xs={6}>
+                        <TextField
+                          required
+                          margin="dense"
+                          id="apellidos"
+                          label="Apellidos"
+                          fullWidth
+                          {...getFieldProps("apellidos")}
+                          error={Boolean(touched.apellidos && errors.apellidos)}
+                          helperText={touched.apellidos && errors.apellidos}
+                        />
+                      </Grid>
+                      <Grid container item xs={6}>
+                        <TextField
+                          required
+                          margin="dense"
+                          id="ciudad"
+                          label="Ciudad"
+                          fullWidth
+                          {...getFieldProps("ciudad")}
+                          error={Boolean(touched.ciudad && errors.ciudad)}
+                          helperText={touched.ciudad && errors.ciudad}
+                        />
+                      </Grid>
+                      <Grid container item xs={6}>
+                        <TextField
+                          required
+                          margin="dense"
+                          id="comuna"
+                          label="Comuna"
+                          fullWidth
+                          {...getFieldProps("comuna")}
+                          error={Boolean(touched.comuna && errors.comuna)}
+                          helperText={touched.comuna && errors.comuna}
+                        />
+                      </Grid>
+                    </Grid>
+                    <TextField
+                      required
+                      margin="dense"
+                      id="direccion"
+                      label="Dirección"
+                      fullWidth
+                      {...getFieldProps("direccion")}
+                      error={Boolean(touched.direccion && errors.direccion)}
+                      helperText={touched.direccion && errors.direccion}
+                    />
+                  </>
+                )}
                 <TextField
                   style={{ marginTop: ".5rem" }}
                   fullWidth
