@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
     return sendPasswordResetEmail(auth, correo);
   }
 
-  function updatePasswordUser(newPassword) {
+  async function updatePasswordUser(newPassword) {
     return updatePassword(auth.currentUser, newPassword)
       .then(() => {
         return true;

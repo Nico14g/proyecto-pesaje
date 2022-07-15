@@ -27,8 +27,9 @@ import useAuth from "../Auth/Auth";
 import TotalCategoriasCard from "../components/reportes/TotalCategoriasCard";
 import MayorCategoria from "../components/reportes/MayorCategoria";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import ClickAwayListener from "@mui/material/ClickAwayListener";
 import TablaHistorial from "../components/reportes/TablaHistorial";
+import ExportToExcel from "../utilidades/ExportToExcel";
+import { Alerta } from "../components/Alert";
 
 const styles = makeStyles((theme) => ({
   root: {
@@ -62,6 +63,9 @@ export default function Dashboard() {
   const [isLoadingMayor, setIsLoadingMayor] = useState(true);
   const [pastelChart, setPastelChart] = useState({ serie: [], labels: [""] });
   const [lineaChart, setLineaChart] = useState({ serie: [], labels: [""] });
+  const [showAlert, setShowAlert] = useState(false);
+  const [message, setMessage] = useState("");
+  const [color, setColor] = useState("success");
 
   const [lineaChartTemp, setLineaChartTemp] = useState({
     serie: [],
@@ -113,7 +117,9 @@ export default function Dashboard() {
 
     const categoria = {
       ...categories[i],
-      data: categories[i].registros.map((register) => register.acumulado),
+      data: categories[i].registros.map((register) =>
+        roundToTwo(register.acumulado)
+      ),
     };
     setIsLoadingMayor(false);
     if (tipo === "max") {
@@ -196,8 +202,8 @@ export default function Dashboard() {
 
     const graficoPastel = () => {
       let data = { serie: [], labels: [] };
-      data.serie = selectedCategoria.registros.map(
-        (register) => register.acumulado
+      data.serie = selectedCategoria.registros.map((register) =>
+        roundToTwo(register.acumulado)
       );
 
       data.labels = selectedCategoria.registros.map(
@@ -236,7 +242,7 @@ export default function Dashboard() {
             element.fecha.toDate().getMonth() === date.getMonth() &&
             element.fecha.toDate().getDate() === date.getDate()
           ) {
-            serie[index] = serie[index] + parseFloat(element.peso);
+            serie[index] = roundToTwo(serie[index] + parseFloat(element.peso));
             totalRegisters.splice(i, 1);
             i--;
           }
@@ -264,7 +270,7 @@ export default function Dashboard() {
             element.fecha.toDate().getMonth() === date.getMonth() &&
             element.fecha.toDate().getDate() === date.getDate()
           ) {
-            serie[index] = serie[index] + parseFloat(element.peso);
+            serie[index] = roundToTwo(serie[index] + parseFloat(element.peso));
             workerRegister.splice(i, 1);
             i--;
           }
@@ -567,6 +573,10 @@ export default function Dashboard() {
     ].join("/");
   }
 
+  function roundToTwo(num) {
+    return +(Math.round(num + "e+2") + "e-2");
+  }
+
   return (
     <Page title="Gestión Cosecha">
       <Container>
@@ -575,20 +585,20 @@ export default function Dashboard() {
             Visualización de datos
           </Typography>
           <Grid container spacing={2} style={{ marginLeft: 30 }}>
-            <Grid item xs={3}>
+            <Grid item xs={12} md={3}>
               <TotalCategoriasCard
                 isLoading={isLoading}
                 cantidadCategorias={cantidadCategorias}
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={12} md={4}>
               <MayorCategoria
                 isLoading={isLoadingMayor}
                 mayorCategoria={mayorCategoria}
                 texto="Mayor Registro"
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={12} md={4}>
               <MayorCategoria
                 isLoading={isLoadingMayor}
                 mayorCategoria={menorCategoria}
@@ -598,47 +608,81 @@ export default function Dashboard() {
           </Grid>
           {!isLoading && selectedCategoria && pastelChart && (
             <>
-              <Grid container spacing={2} style={{ marginLeft: 30 }}>
-                <Grid item xs={3}>
-                  <Autocomplete
-                    id="controlled-demo"
-                    options={categorias}
-                    value={selectedCategoria}
-                    isOptionEqualToValue={(option, value) =>
-                      option.idCategoria === value.idCategoria
-                    }
-                    getOptionLabel={(option) => option.nombreCategoria}
-                    style={{ marginTop: 30, marginBottom: 30 }}
-                    onChange={(event, newValue) => {
-                      if (newValue !== null) {
-                        setCambioCategoria(true);
-                        setSelectedCategoria(newValue);
-
-                        if (newValue.registros.length > 0) {
-                          setSelectedTemporero(newValue.registros[0]);
-                        } else {
-                          setSelectedTemporero({
-                            nombreTemporero: "",
-                            apellidoTemporero: "",
-                            idRegistro: "",
-                            registrosTemporero: [],
-                          });
-                        }
+              <Container
+                style={{
+                  marginTop: 30,
+                  marginBottom: 15,
+                  marginLeft: 20,
+                }}
+              >
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <Autocomplete
+                      id="controlled-demo"
+                      options={categorias}
+                      value={selectedCategoria}
+                      isOptionEqualToValue={(option, value) =>
+                        option.idCategoria === value.idCategoria
                       }
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Categoría"
-                        variant="standard"
-                      />
-                    )}
-                  />
+                      getOptionLabel={(option) => option.nombreCategoria}
+                      onChange={(event, newValue) => {
+                        if (newValue !== null) {
+                          setCambioCategoria(true);
+                          setSelectedCategoria(newValue);
+
+                          if (newValue.registros.length > 0) {
+                            setSelectedTemporero(newValue.registros[0]);
+                          } else {
+                            setSelectedTemporero({
+                              nombreTemporero: "",
+                              apellidoTemporero: "",
+                              idRegistro: "",
+                              registrosTemporero: [],
+                            });
+                          }
+                        }
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Categoría"
+                          variant="standard"
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <ExportToExcel
+                      data={categorias.find(
+                        (categoria) =>
+                          categoria.idCategoria ===
+                          selectedCategoria.idCategoria
+                      )}
+                      filename={
+                        "Cosecha " +
+                        categorias.find(
+                          (categoria) =>
+                            categoria.idCategoria ===
+                            selectedCategoria.idCategoria
+                        ).nombreCategoria
+                      }
+                      sheetName={
+                        "Cosecha " +
+                        categorias.find(
+                          (categoria) =>
+                            categoria.idCategoria ===
+                            selectedCategoria.idCategoria
+                        ).nombreCategoria
+                      }
+                      setShowAlert={setShowAlert}
+                      setColor={setColor}
+                      setMessage={setMessage}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={6}></Grid>
-              </Grid>
+              </Container>
               <Grid container spacing={2}>
-                <Grid item xs={5}>
+                <Grid item xs={12} md={5}>
                   <Card>
                     <Box
                       style={{
@@ -684,7 +728,7 @@ export default function Dashboard() {
                     )}
                   </Card>
                 </Grid>
-                <Grid item xs={7}>
+                <Grid item xs={12} md={7}>
                   <Card>
                     <LocalizationProvider
                       dateAdapter={AdapterDateFns}
@@ -806,7 +850,7 @@ export default function Dashboard() {
                 </Grid>
               </Grid>
               <Grid container spacing={2} style={{ marginLeft: 30 }}>
-                <Grid item xs={3}>
+                <Grid item xs={12} md={3}>
                   <Autocomplete
                     id="controlled-demo"
                     options={selectedCategoria.registros}
@@ -833,10 +877,10 @@ export default function Dashboard() {
                     )}
                   />
                 </Grid>
-                <Grid item xs={6}></Grid>
+                <Grid item xs={12} md={6}></Grid>
               </Grid>
               <Grid container spacing={2} style={{ marginBottom: 60 }}>
-                <Grid item xs={5}>
+                <Grid item xs={12} md={5}>
                   <Card>
                     <Box
                       style={{
@@ -871,7 +915,7 @@ export default function Dashboard() {
                     </Box>
                   </Card>
                 </Grid>
-                <Grid item xs={7}>
+                <Grid item xs={12} md={7}>
                   <Card>
                     <LocalizationProvider
                       dateAdapter={AdapterDateFns}
@@ -1002,6 +1046,14 @@ export default function Dashboard() {
           )}
         </Card>
       </Container>
+      {showAlert && (
+        <Alerta
+          showAlert={showAlert}
+          setShowAlert={setShowAlert}
+          color={color}
+          message={message}
+        />
+      )}
     </Page>
   );
 }

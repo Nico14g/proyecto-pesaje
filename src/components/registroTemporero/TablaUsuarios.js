@@ -26,6 +26,8 @@ import { TablaHead, TablaToolbar } from "../tablas";
 import Scrollbar from "../Scrollbar";
 import SearchNotFound from "../SearchNotFound";
 import ModalFormulario from "./ModalFormulario";
+import ModalSeleccion from "./SeleccionAgregarUsuario";
+import ModalAgregarUsuarioExcel from "./ModalAgregarUsuarioExcel";
 
 const TABLE_HEAD = [
   { id: "rut", label: "Rut", alignRight: false },
@@ -79,12 +81,14 @@ export default function TablaUsuarios(props) {
   const [orderBy, setOrderBy] = useState("nombreTarea");
   const [filterName, setFilterName] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [open, setOpen] = useState(false);
+  const [openAgregarUsuario, setOpenAgregarUsuario] = useState(false);
   const [visualizar, setVisualizar] = useState("");
   const [loadingTable, setLoadingTable] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [color, setColor] = useState("success");
+  const [openModalSeleccion, setOpenModalSeleccion] = useState(false);
+  const [openSubirExcel, setOpenSubirExcel] = useState(false);
   const [usuario, setUsuario] = useState({
     nombreUsuario: "",
     apellidoUsuario: "",
@@ -165,13 +169,13 @@ export default function TablaUsuarios(props) {
       fechaCreacion: "",
     });
     setVisualizar(false);
-    setOpen(true);
+    setOpenModalSeleccion(true);
   };
 
   const handleVisualizar = (user) => {
     setUsuario(user);
     setVisualizar(true);
-    setOpen(true);
+    setOpenAgregarUsuario(true);
   };
   return (
     <Paper>
@@ -192,7 +196,7 @@ export default function TablaUsuarios(props) {
         </Grid>
         <Grid item xs md>
           <Grid container direction="row-reverse">
-            <Grid item xs={12} md={6} style={{ marginRight: 20 }}>
+            <Grid item xs={12} md={12} lg={9}>
               <Container>
                 <Button
                   variant="contained"
@@ -289,15 +293,37 @@ export default function TablaUsuarios(props) {
         />
       </ThemeProvider>
 
-      {open && (
+      {openAgregarUsuario && (
         <ModalFormulario
-          open={open}
-          setOpen={setOpen}
+          open={openAgregarUsuario}
+          setOpen={setOpenAgregarUsuario}
           setShowAlert={setShowAlert}
           setMessage={setMessage}
           setColor={setColor}
           usuario={usuario}
           visualizar={visualizar}
+          setOpenSeleccion={setOpenModalSeleccion}
+        />
+      )}
+      {openModalSeleccion && (
+        <ModalSeleccion
+          openSeleccion={openModalSeleccion}
+          setOpenSeleccion={setOpenModalSeleccion}
+          setOpenAgregarUsuario={setOpenAgregarUsuario}
+          setOpenSubirExcel={setOpenSubirExcel}
+          setColor={setColor}
+          setMessage={setMessage}
+          setAlerta={setShowAlert}
+        />
+      )}
+      {openSubirExcel && (
+        <ModalAgregarUsuarioExcel
+          openSubirExcel={openSubirExcel}
+          setOpenSubirExcel={setOpenSubirExcel}
+          setColor={setColor}
+          setMessage={setMessage}
+          setAlerta={setShowAlert}
+          setOpenSeleccion={setOpenModalSeleccion}
         />
       )}
       {showAlert && (

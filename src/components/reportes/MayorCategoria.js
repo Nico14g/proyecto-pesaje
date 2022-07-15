@@ -1,4 +1,4 @@
-import { useTheme, styled } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import { Box, Typography, Grid } from "@mui/material";
 import MainCard from "../MainCard";
 import SkeletonTotalPesaje from "./SkeletonTotalPesaje";
@@ -48,7 +48,6 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 export default function MayorCategoria(props) {
   const { isLoading, mayorCategoria, texto } = props;
-  const theme = useTheme();
 
   const pieChart = {
     series: mayorCategoria.data,
@@ -69,15 +68,17 @@ export default function MayorCategoria(props) {
             labels: {
               show: true,
               name: {
-                show: true,
+                show: false,
                 color: "white",
+                fontSize: "15px",
                 formatter: function (val, opts) {
-                  return "Total";
+                  return "Peso";
                 },
               },
               value: {
                 show: true,
                 color: "white",
+                fontSize: "15px",
               },
               total: {
                 show: true,

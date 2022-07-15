@@ -16,7 +16,6 @@ import {
   Paper,
 } from "@mui/material";
 import { TablaHead } from "../tablas";
-import Scrollbar from "../Scrollbar";
 import SearchNotFound from "../SearchNotFound";
 import useAuth from "../../Auth/Auth";
 
@@ -80,12 +79,7 @@ export default function TablaHistorial(props) {
   const [orderBy, setOrderBy] = useState("nombreTarea");
   const [filterName, setFilterName] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [open, setOpen] = useState(false);
   const [loadingTable, setLoadingTable] = useState(true);
-  const [showAlert, setShowAlert] = useState(false);
-  const [message, setMessage] = useState("");
-  const [color, setColor] = useState("success");
-  const { userData } = useAuth();
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -110,9 +104,6 @@ export default function TablaHistorial(props) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - registros?.length) : 0;
 
   const filteredUsers = applySortFilter(
     registros,
@@ -171,7 +162,7 @@ export default function TablaHistorial(props) {
                       role="checkbox"
                     >
                       <TableCell align="left">
-                        <Typography variant="subtitle2">{id}</Typography>
+                        <Typography>{id}</Typography>
                       </TableCell>
 
                       <TableCell align="left">
@@ -220,15 +211,6 @@ export default function TablaHistorial(props) {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </ThemeProvider>
-
-      {showAlert && (
-        <Alerta
-          showAlert={showAlert}
-          setShowAlert={setShowAlert}
-          color={color}
-          message={message}
-        />
-      )}
     </Paper>
   );
 }

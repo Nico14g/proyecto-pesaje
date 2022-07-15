@@ -78,6 +78,7 @@ export default function ModalFormulario(props) {
     setColor,
     usuario,
     visualizar,
+    setOpenSeleccion,
   } = props;
   const [loading, setLoading] = useState(false);
   const [loadingCredenciales, setLoadingCredenciales] = useState(false);
@@ -149,6 +150,7 @@ export default function ModalFormulario(props) {
     setMessage("Ha ocurrido un error.");
     setColor("error");
     setOpen(false);
+    setOpenSeleccion(false);
     setLoadingCredenciales(false);
     setShowAlert(true);
   };
@@ -177,6 +179,7 @@ export default function ModalFormulario(props) {
                 setLoadingCredenciales(false);
                 setCredenciales(false);
                 setOpen(false);
+                setOpenSeleccion(false);
                 setShowAlert(true);
                 navigate("/dashboard/reportes", { replace: true });
               })
@@ -209,6 +212,7 @@ export default function ModalFormulario(props) {
         setColor("success");
         setLoading(false);
         setOpen(false);
+        setOpenSeleccion(false);
         setShowAlert(true);
       })
       .catch(() => {
