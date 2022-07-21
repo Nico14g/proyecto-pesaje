@@ -670,36 +670,34 @@ export default function Dashboard() {
                       )}
                     />
                   </Grid>
-                  {categorias.length > 0 && (
-                    <Grid item xs={12} md={6}>
-                      <ExportToExcel
-                        data={categorias.find(
+                  <Grid item xs={12} md={6}>
+                    <ExportToExcel
+                      data={categorias.find(
+                        (categoria) =>
+                          categoria.idCategoria ===
+                          selectedCategoria.idCategoria
+                      )}
+                      filename={
+                        "Cosecha " +
+                        categorias.find(
                           (categoria) =>
                             categoria.idCategoria ===
                             selectedCategoria.idCategoria
-                        )}
-                        filename={
-                          "Cosecha " +
-                          categorias.find(
-                            (categoria) =>
-                              categoria.idCategoria ===
-                              selectedCategoria.idCategoria
-                          )?.nombreCategoria
-                        }
-                        sheetName={
-                          "Cosecha " +
-                          categorias.find(
-                            (categoria) =>
-                              categoria.idCategoria ===
-                              selectedCategoria.idCategoria
-                          )?.nombreCategoria
-                        }
-                        setShowAlert={setShowAlert}
-                        setColor={setColor}
-                        setMessage={setMessage}
-                      />
-                    </Grid>
-                  )}
+                        )?.nombreCategoria
+                      }
+                      sheetName={
+                        "Cosecha " +
+                        categorias.find(
+                          (categoria) =>
+                            categoria.idCategoria ===
+                            selectedCategoria.idCategoria
+                        )?.nombreCategoria
+                      }
+                      setShowAlert={setShowAlert}
+                      setColor={setColor}
+                      setMessage={setMessage}
+                    />
+                  </Grid>
                 </Grid>
               </Container>
               <Grid container spacing={2}>

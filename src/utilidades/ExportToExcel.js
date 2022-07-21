@@ -149,7 +149,7 @@ export default function ExportToExcel(props) {
   };
 
   const exportar = () => {
-    if (data) {
+    if (data && data.registros.length > 0) {
       let worksheet = XLSX.utils.aoa_to_sheet(formatDataGeneral(data));
       let workSheets = [];
       let sheetNames = [];
