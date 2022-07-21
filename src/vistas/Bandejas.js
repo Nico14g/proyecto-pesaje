@@ -39,7 +39,7 @@ export default function Bandejas() {
   const isMounted = useRef(true);
 
   useEffect(() => {
-    const cuid = userData.rol === "bandeja" ? userData.uid : userData.cuid;
+    const cuid = userData.rol === "company" ? userData.uid : userData.cuid;
 
     const q = query(collection(db, "bandeja"), where("cuid", "==", cuid));
     onSnapshot(q, (querySnapshot) => {

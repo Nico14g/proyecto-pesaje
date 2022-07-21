@@ -183,6 +183,15 @@ export default function Dashboard() {
     if (categorias.length > 0 && registros.length > 0) {
       obtenerCategoria(categorias, "max");
       obtenerCategoria(categorias, "min");
+    } else {
+      setSelectedCategoria({
+        nombreCategoria: "",
+        registros: [],
+      });
+
+      setMayorCategoria({ nombreCategoria: "No hay categorías", data: [0] });
+      setMenorCategoria({ nombreCategoria: "No hay categorías", data: [0] });
+      setIsLoadingMayor(false);
     }
   }, [categorias, registros, registrosTemporero]);
 
@@ -231,26 +240,35 @@ export default function Dashboard() {
         filterDate[0].startDate,
         filterDate[0].endDate
       );
-
       let serie = [];
-      dateRange.map((date, index) => {
-        serie.push(0);
-        for (let i = 0; i < totalRegisters.length; i++) {
-          const element = totalRegisters[i];
-          if (
-            element.fecha.toDate().getFullYear() === date.getFullYear() &&
-            element.fecha.toDate().getMonth() === date.getMonth() &&
-            element.fecha.toDate().getDate() === date.getDate()
-          ) {
-            serie[index] = roundToTwo(serie[index] + parseFloat(element.peso));
-            totalRegisters.splice(i, 1);
-            i--;
+      let range;
+      let data;
+      if (totalRegisters.length > 0) {
+        dateRange.map((date, index) => {
+          serie.push(0);
+          for (let i = 0; i < totalRegisters.length; i++) {
+            const element = totalRegisters[i];
+            if (
+              element.fecha.toDate().getFullYear() === date.getFullYear() &&
+              element.fecha.toDate().getMonth() === date.getMonth() &&
+              element.fecha.toDate().getDate() === date.getDate()
+            ) {
+              serie[index] = roundToTwo(
+                serie[index] + parseFloat(element.peso)
+              );
+              totalRegisters.splice(i, 1);
+              i--;
+            }
           }
-        }
-        return null;
-      });
-      let range = dateRange.map((date) => date.getDate());
-      let data = { serie: serie, labels: range };
+          return null;
+        });
+        range = dateRange.map((date) => date.getDate());
+        data = { serie: serie, labels: range };
+      } else {
+        range = dateRange.map((date) => date.getDate());
+        data = { serie: [0], labels: range };
+      }
+
       setLineaChart(data);
     };
 
@@ -280,6 +298,7 @@ export default function Dashboard() {
       let range = dateRange.map((date) => date.getDate());
       return { serie: serie, labels: range };
     };
+
     const graficoLinealMejorTemporero = () => {
       let workerRegisters = [];
       let pesos = [];
@@ -651,34 +670,36 @@ export default function Dashboard() {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={12} md={6}>
-                    <ExportToExcel
-                      data={categorias.find(
-                        (categoria) =>
-                          categoria.idCategoria ===
-                          selectedCategoria.idCategoria
-                      )}
-                      filename={
-                        "Cosecha " +
-                        categorias.find(
+                  {categorias.length > 0 && (
+                    <Grid item xs={12} md={6}>
+                      <ExportToExcel
+                        data={categorias.find(
                           (categoria) =>
                             categoria.idCategoria ===
                             selectedCategoria.idCategoria
-                        ).nombreCategoria
-                      }
-                      sheetName={
-                        "Cosecha " +
-                        categorias.find(
-                          (categoria) =>
-                            categoria.idCategoria ===
-                            selectedCategoria.idCategoria
-                        ).nombreCategoria
-                      }
-                      setShowAlert={setShowAlert}
-                      setColor={setColor}
-                      setMessage={setMessage}
-                    />
-                  </Grid>
+                        )}
+                        filename={
+                          "Cosecha " +
+                          categorias.find(
+                            (categoria) =>
+                              categoria.idCategoria ===
+                              selectedCategoria.idCategoria
+                          )?.nombreCategoria
+                        }
+                        sheetName={
+                          "Cosecha " +
+                          categorias.find(
+                            (categoria) =>
+                              categoria.idCategoria ===
+                              selectedCategoria.idCategoria
+                          )?.nombreCategoria
+                        }
+                        setShowAlert={setShowAlert}
+                        setColor={setColor}
+                        setMessage={setMessage}
+                      />
+                    </Grid>
+                  )}
                 </Grid>
               </Container>
               <Grid container spacing={2}>
@@ -721,7 +742,7 @@ export default function Dashboard() {
                           }}
                         >
                           <Typography>
-                            No se Han Encontrado Registros
+                            No se han encontrado registros
                           </Typography>
                         </Card>
                       </Box>
